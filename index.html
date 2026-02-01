@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VipClub NBA Graphics Generator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #0d0d0d;
+            --bg-card: #161616;
+            --bg-input: #1e1e1e;
+            --gold: #FFD700;
+            --gold-dim: rgba(255, 215, 0, 0.25);
+            --gold-glow: rgba(255, 215, 0, 0.15);
+            --text: #ffffff;
+            --text-muted: #999999;
+            --border: #2a2a2a;
+            --green: #22c55e;
+            --blue: #3b82f6;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-body);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .app-header {
+            text-align: center;
+            padding: 20px 0 24px;
+        }
+        .app-header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.8em;
+            background: linear-gradient(135deg, var(--gold) 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+        .app-header p {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        @media (min-width: 1024px) {
+            .layout {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .form-col {
+                width: 420px;
+                flex-shrink: 0;
+            }
+            .preview-col {
+                flex: 1;
+                position: sticky;
+                top: 16px;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        /* Section headings */
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5em;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Format selector cards */
+        .format-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .format-card {
+            position: relative;
+            cursor: pointer;
+        }
+        .format-card input { display: none; }
+        .format-card-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 8px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .format-card input:checked + .format-card-inner {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.08);
+        }
+        .format-preview {
+            background: #2a2a2a;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+        .format-preview.sq  { width: 36px; height: 36px; }
+        .format-preview.pt  { width: 32px; height: 40px; }
+        .format-preview.st  { width: 24px; height: 44px; }
+        .format-label {
+            font-weight: 700;
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            line-height: 1.3;
+            color: #ccc;
+        }
+        .format-card input:checked ~ .format-card-inner .format-label { color: var(--gold); }
+
+        /* Form fields */
+        .field { margin-bottom: 12px; }
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .field select,
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 11px 14px;
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+        .field textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+        .field select:focus,
+        .field input:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Details / collapsible */
+        details.prop-detail {
+            margin-top: 8px;
+            margin-bottom: 12px;
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+        details.prop-detail summary {
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 0.82em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            list-style: none;
+            user-select: none;
+            padding: 10px 14px;
+            transition: background 0.2s;
+        }
+        details.prop-detail summary:hover { background: rgba(255, 215, 0, 0.05); }
+        details.prop-detail summary::-webkit-details-marker { display: none; }
+        details.prop-detail summary::before {
+            content: '\25B6\00a0';
+            display: inline-block;
+            transition: transform 0.2s;
+            font-size: 0.7em;
+        }
+        details.prop-detail[open] summary::before { transform: rotate(90deg); }
+        .prop-inner { padding: 4px 14px 14px; }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 24px;
+            font-size: 1.1em;
+            font-weight: 700;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1.5px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-generate {
+            background: linear-gradient(135deg, var(--gold) 0%, #FFA500 100%);
+            color: #000;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+        .btn-generate:hover { box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5); }
+
+        .btn-download {
+            background: linear-gradient(135deg, var(--blue) 0%, #2563eb 100%);
+            color: #fff;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+        .btn-download:hover { box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); }
+
+        .btn-copy {
+            background: linear-gradient(135deg, var(--gold) 0%, #FFA500 100%);
+            color: #000;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            width: auto;
+        }
+
+        /* Canvas preview */
+        #canvasContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #canvas {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+        .preview-placeholder {
+            text-align: center;
+            padding: 80px 20px;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        /* Caption */
+        .caption-section { display: none; }
+        .caption-section.active { display: block; }
+        .caption-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .caption-text {
+            background: var(--bg-input);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 0.95em;
+            border: 1px solid var(--border);
+        }
+
+        /* Prop Legs */
+        .legs-container { display: flex; flex-direction: column; gap: 8px; }
+        .prop-leg {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 32px;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 10px;
+            background: rgba(255,215,0,0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+        .prop-leg select,
+        .prop-leg input {
+            width: 100%;
+            padding: 8px 8px;
+            font-size: 13px;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            -webkit-appearance: none;
+        }
+        .prop-leg select:focus,
+        .prop-leg input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+        .btn-remove-leg {
+            width: 28px; height: 28px;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.4);
+            border-radius: 6px;
+            color: #ef4444;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .btn-remove-leg:hover { background: rgba(239,68,68,0.3); }
+        .btn-add-leg {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold);
+            background: rgba(255,215,0,0.06);
+            border: 1px dashed rgba(255,215,0,0.35);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-add-leg:hover { background: rgba(255,215,0,0.12); }
+        .parlay-odds-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+        .parlay-odds-display .label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8em; }
+        .parlay-odds-display .odds-value { color: var(--green); font-size: 1.2em; }
+        .leg-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 32px;
+            gap: 6px;
+            padding: 0 10px;
+            margin-bottom: 2px;
+        }
+        .leg-header span {
+            font-size: 0.65em;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Status */
+        .status {
+            text-align: center;
+            padding: 10px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--green);
+            border-radius: var(--radius-sm);
+            color: var(--green);
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-bottom: 16px;
+        }
+
+        /* API Key Input */
+        .api-key-input {
+            width: 100%;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: border-color 0.2s;
+        }
+        .api-key-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+        .api-key-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .api-key-row input { flex: 1; }
+        .api-key-status {
+            font-size: 0.72em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .api-key-status.saved { color: var(--green); }
+
+        /* Fetch Buttons */
+        .btn-fetch {
+            padding: 8px 14px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            color: var(--gold);
+            background: transparent;
+            border: 1.5px solid var(--gold);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+        .btn-fetch:hover {
+            background: rgba(255, 215, 0, 0.12);
+            box-shadow: 0 0 8px var(--gold-glow);
+        }
+        .btn-fetch:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-fetch-sm {
+            padding: 6px 10px;
+            font-size: 0.78em;
+        }
+        .fetch-status {
+            font-size: 0.72em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .fetch-status.success { color: var(--green); }
+        .fetch-status.error { color: #ef4444; }
+        .fetch-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .player-fetch-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .player-fetch-row select { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="app-header">
+            <h1>VIPCLUB NBA</h1>
+            <p>Professional NBA Betting Graphics</p>
+        </div>
+
+        <div id="status" class="status">Ready to generate graphics!</div>
+
+        <div class="layout">
+            <!-- Form Column -->
+            <div class="form-col">
+
+                <!-- API Key -->
+                <div class="card">
+                    <div class="section-title">The Odds API</div>
+                    <div class="api-key-row">
+                        <input type="password" id="oddsApiKey" class="api-key-input" placeholder="Enter your API key from the-odds-api.com">
+                        <button type="button" class="btn-fetch btn-fetch-sm" onclick="toggleApiKeyVisibility()">SHOW</button>
+                    </div>
+                    <div class="api-key-status" id="apiKeyStatus">Free tier = 500 requests/month</div>
+                </div>
+
+                <!-- Format -->
+                <div class="card">
+                    <div class="section-title">Format</div>
+                    <div class="format-cards">
+                        <label class="format-card">
+                            <input type="radio" name="format" value="square" checked>
+                            <div class="format-card-inner">
+                                <div class="format-preview sq"></div>
+                                <span class="format-label">Square<br>1080&times;1080</span>
+                            </div>
+                        </label>
+                        <label class="format-card">
+                            <input type="radio" name="format" value="portrait">
+                            <div class="format-card-inner">
+                                <div class="format-preview pt"></div>
+                                <span class="format-label">Portrait<br>1080&times;1350</span>
+                            </div>
+                        </label>
+                        <label class="format-card">
+                            <input type="radio" name="format" value="stories">
+                            <div class="format-card-inner">
+                                <div class="format-preview st"></div>
+                                <span class="format-label">Stories<br>1080&times;1920</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Matchup -->
+                <div class="card">
+                    <div class="section-title">Matchup</div>
+
+                    <div class="field">
+                        <label>Away Team</label>
+                        <select id="awayTeam"><option value="">-- Select Away Team --</option></select>
+                    </div>
+
+                    <details class="prop-detail" id="awayPlayerSection">
+                        <summary>Away Player Parlay (Optional)</summary>
+                        <div class="prop-inner">
+                            <div class="field">
+                                <label>Player</label>
+                                <div class="player-fetch-row">
+                                    <select id="awayPlayer"><option value="">-- Select Player --</option></select>
+                                    <button type="button" class="btn-fetch btn-fetch-sm" onclick="fetchPlayerPropsUI('away')">FETCH PROPS</button>
+                                </div>
+                                <span class="fetch-status" id="awayFetchPropsStatus"></span>
+                            </div>
+                            <div class="leg-header"><span>Prop</span><span>Line</span><span>Odds</span><span></span></div>
+                            <div class="legs-container" id="awayLegs"></div>
+                            <button type="button" class="btn-add-leg" onclick="addPropLeg('away')">+ Add Leg</button>
+                            <div class="parlay-odds-display" id="awayParlayDisplay" style="display:none;">
+                                <span class="label">Parlay Odds</span>
+                                <span class="odds-value" id="awayParlayOdds">--</span>
+                            </div>
+                        </div>
+                    </details>
+
+                    <div class="field">
+                        <label>Home Team</label>
+                        <select id="homeTeam"><option value="">-- Select Home Team --</option></select>
+                    </div>
+
+                    <details class="prop-detail" id="homePlayerSection">
+                        <summary>Home Player Parlay (Optional)</summary>
+                        <div class="prop-inner">
+                            <div class="field">
+                                <label>Player</label>
+                                <div class="player-fetch-row">
+                                    <select id="homePlayer"><option value="">-- Select Player --</option></select>
+                                    <button type="button" class="btn-fetch btn-fetch-sm" onclick="fetchPlayerPropsUI('home')">FETCH PROPS</button>
+                                </div>
+                                <span class="fetch-status" id="homeFetchPropsStatus"></span>
+                            </div>
+                            <div class="leg-header"><span>Prop</span><span>Line</span><span>Odds</span><span></span></div>
+                            <div class="legs-container" id="homeLegs"></div>
+                            <button type="button" class="btn-add-leg" onclick="addPropLeg('home')">+ Add Leg</button>
+                            <div class="parlay-odds-display" id="homeParlayDisplay" style="display:none;">
+                                <span class="label">Parlay Odds</span>
+                                <span class="odds-value" id="homeParlayOdds">--</span>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Lines & Info -->
+                <div class="card">
+                    <div class="section-title">Lines &amp; Info</div>
+                    <div class="fetch-row">
+                        <button type="button" class="btn-fetch" id="fetchLiveBtn" onclick="fetchLiveLines()">FETCH LIVE</button>
+                        <span class="fetch-status" id="fetchLiveStatus"></span>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Spread</label>
+                            <input type="text" id="spread" placeholder="BOS -4.5">
+                        </div>
+                        <div class="field">
+                            <label>Total</label>
+                            <input type="text" id="total" placeholder="O/U 221.5">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Tip-Off</label>
+                        <input type="text" id="tipOff" placeholder="Tonight 8:00 PM ET">
+                    </div>
+                </div>
+
+                <!-- Promotion -->
+                <div class="card">
+                    <div class="section-title">Promotion</div>
+                    <div class="field">
+                        <label>Select Promo</label>
+                        <select id="promoSelect">
+                            <option value="">No Promo</option>
+                            <option value="RISK_FREE">Risk Free Wager</option>
+                            <option value="MATCH_100">100% Match Bonus</option>
+                            <option value="MATCH_50">50% Match Bonus</option>
+                            <option value="VIP_CODE">VIP Bonus Code</option>
+                            <option value="CUSTOM">Custom Promo</option>
+                        </select>
+                    </div>
+                    <details class="prop-detail" id="customPromoSection">
+                        <summary>Custom Promo Details</summary>
+                        <div class="prop-inner">
+                            <div class="field">
+                                <label>Promo Title</label>
+                                <input type="text" id="customPromoTitle" placeholder="e.g., PLAYOFF SPECIAL">
+                            </div>
+                            <div class="field">
+                                <label>Promo Rules</label>
+                                <textarea id="customPromoRules" placeholder="Enter promo details..."></textarea>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <button class="btn btn-generate" onclick="generateGraphic()">GENERATE GRAPHIC</button>
+            </div>
+
+            <!-- Preview Column -->
+            <div class="preview-col">
+                <div class="card">
+                    <div class="section-title">Preview</div>
+                    <div id="canvasContainer">
+                        <div class="preview-placeholder">Configure and generate your graphic</div>
+                    </div>
+                    <button class="btn btn-download" onclick="downloadGraphic()" style="display:none;" id="downloadBtn">DOWNLOAD PNG</button>
+                </div>
+
+                <div class="caption-section card" id="captionSection">
+                    <div class="caption-header">
+                        <div class="section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">Caption</div>
+                        <button class="btn btn-copy" onclick="copyCaption()"><span id="copyText">Copy</span></button>
+                    </div>
+                    <div class="caption-text" id="caption"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           DATA & ASSET LOADING
+           ========================================================= */
+        const teamLogos = {};
+        const playerPNGs = {};
+        let vipLogo = null;
+        const backgrounds = {};
+
+        const teams = {
+            'Celtics': {name: 'CELTICS', city: 'BOSTON', abbr: 'BOS', colors: ['#007A33', '#BA9653'], file: 'celtics.png', players: [{name: 'Jayson Tatum', file: 'tatum.png'}, {name: 'Jaylen Brown', file: 'brown.png'}]},
+            'Nets': {name: 'NETS', city: 'BROOKLYN', abbr: 'BKN', colors: ['#000000', '#FFFFFF'], file: 'nets.png', players: [{name: 'Mikal Bridges', file: 'bridges.png'}]},
+            'Knicks': {name: 'KNICKS', city: 'NEW YORK', abbr: 'NYK', colors: ['#006BB6', '#F58426'], file: 'knicks.png', players: [{name: 'Jalen Brunson', file: 'brunson.png'}]},
+            '76ers': {name: '76ERS', city: 'PHILADELPHIA', abbr: 'PHI', colors: ['#006BB6', '#ED174C'], file: '76ers.png', players: [{name: 'Joel Embiid', file: 'embiid.png'}]},
+            'Raptors': {name: 'RAPTORS', city: 'TORONTO', abbr: 'TOR', colors: ['#CE1141', '#000000'], file: 'raptors.png', players: [{name: 'Scottie Barnes', file: 'barnes.png'}]},
+            'Bulls': {name: 'BULLS', city: 'CHICAGO', abbr: 'CHI', colors: ['#CE1141', '#000000'], file: 'bulls.png', players: [{name: 'Zach LaVine', file: 'lavine.png'}]},
+            'Cavaliers': {name: 'CAVALIERS', city: 'CLEVELAND', abbr: 'CLE', colors: ['#860038', '#FDBB30'], file: 'cavaliers.png', players: [{name: 'Donovan Mitchell', file: 'mitchell.png'}]},
+            'Pistons': {name: 'PISTONS', city: 'DETROIT', abbr: 'DET', colors: ['#C8102E', '#1D42BA'], file: 'pistons.png', players: [{name: 'Cade Cunningham', file: 'cunningham.png'}]},
+            'Pacers': {name: 'PACERS', city: 'INDIANA', abbr: 'IND', colors: ['#002D62', '#FDBB30'], file: 'pacers.png', players: [{name: 'Tyrese Haliburton', file: 'haliburton.png'}]},
+            'Bucks': {name: 'BUCKS', city: 'MILWAUKEE', abbr: 'MIL', colors: ['#00471B', '#EEE1C6'], file: 'bucks.png', players: [{name: 'Giannis Antetokounmpo', file: 'giannis.png'}]},
+            'Hawks': {name: 'HAWKS', city: 'ATLANTA', abbr: 'ATL', colors: ['#E03A3E', '#C1D32F'], file: 'hawks.png', players: [{name: 'Trae Young', file: 'young.png'}]},
+            'Hornets': {name: 'HORNETS', city: 'CHARLOTTE', abbr: 'CHA', colors: ['#1D1160', '#00788C'], file: 'hornets.png', players: [{name: 'LaMelo Ball', file: 'ball.png'}]},
+            'Heat': {name: 'HEAT', city: 'MIAMI', abbr: 'MIA', colors: ['#98002E', '#F9A01B'], file: 'heat.png', players: [{name: 'Tyler Herro', file: 'herro.png'}]},
+            'Magic': {name: 'MAGIC', city: 'ORLANDO', abbr: 'ORL', colors: ['#0077C0', '#C4CED4'], file: 'magic.png', players: [{name: 'Paolo Banchero', file: 'paolo.png'}]},
+            'Wizards': {name: 'WIZARDS', city: 'WASHINGTON', abbr: 'WAS', colors: ['#002B5C', '#E31837'], file: 'wizards.png', players: [{name: 'Jordan Poole', file: 'poole.png'}]},
+            'Nuggets': {name: 'NUGGETS', city: 'DENVER', abbr: 'DEN', colors: ['#0E2240', '#FEC524'], file: 'nuggets.png', players: [{name: 'Nikola Jokic', file: 'jokic.png'}]},
+            'Timberwolves': {name: 'TIMBERWOLVES', city: 'MINNESOTA', abbr: 'MIN', colors: ['#0C2340', '#236192'], file: 'timberwolves.png', players: [{name: 'Anthony Edwards', file: 'edwards.png'}]},
+            'Thunder': {name: 'THUNDER', city: 'OKLAHOMA CITY', abbr: 'OKC', colors: ['#007AC1', '#EF3B24'], file: 'thunder.png', players: [{name: 'Shai Gilgeous-Alexander', file: 'shai.png'}]},
+            'Trail Blazers': {name: 'TRAIL BLAZERS', city: 'PORTLAND', abbr: 'POR', colors: ['#E03A3E', '#000000'], file: 'trailblazers.png', players: [{name: 'Scoot Henderson', file: 'henderson.png'}]},
+            'Jazz': {name: 'JAZZ', city: 'UTAH', abbr: 'UTA', colors: ['#002B5C', '#F9A01B'], file: 'jazz.png', players: [{name: 'Lauri Markkanen', file: 'markkanen.png'}]},
+            'Warriors': {name: 'WARRIORS', city: 'GOLDEN STATE', abbr: 'GSW', colors: ['#1D428A', '#FFC72C'], file: 'warriors.png', players: [{name: 'Stephen Curry', file: 'curry.png'}, {name: 'Jimmy Butler', file: 'butler.png'}]},
+            'Clippers': {name: 'CLIPPERS', city: 'LA', abbr: 'LAC', colors: ['#C8102E', '#1D428A'], file: 'clippers.png', players: [{name: 'Kawhi Leonard', file: 'kawhi.png'}]},
+            'Lakers': {name: 'LAKERS', city: 'LOS ANGELES', abbr: 'LAL', colors: ['#552583', '#FDB927'], file: 'lakers.png', players: [{name: 'LeBron James', file: 'lebron.png'}, {name: 'Luka Doncic', file: 'doncic.png'}]},
+            'Suns': {name: 'SUNS', city: 'PHOENIX', abbr: 'PHX', colors: ['#E56020', '#1E1164'], file: 'suns.png', players: [{name: 'Devin Booker', file: 'booker.png'}]},
+            'Kings': {name: 'KINGS', city: 'SACRAMENTO', abbr: 'SAC', colors: ['#5A2D81', '#63727A'], file: 'kings.png', players: [{name: 'De\'Aaron Fox', file: 'fox.png'}]},
+            'Mavericks': {name: 'MAVERICKS', city: 'DALLAS', abbr: 'DAL', colors: ['#00538C', '#B8C4D2'], file: 'mavericks.png', players: [{name: 'Kyrie Irving', file: 'kyrie.png'}, {name: 'Anthony Davis', file: 'ad.png'}, {name: 'Cooper Flagg', file: 'flagg.png'}]},
+            'Rockets': {name: 'ROCKETS', city: 'HOUSTON', abbr: 'HOU', colors: ['#CE1141', '#C4CED4'], file: 'rockets.png', players: [{name: 'Jalen Green', file: 'jalengreen.png'}, {name: 'Kevin Durant', file: 'durant.png'}]},
+            'Grizzlies': {name: 'GRIZZLIES', city: 'MEMPHIS', abbr: 'MEM', colors: ['#5D76A9', '#F5B112'], file: 'grizzlies.png', players: [{name: 'Ja Morant', file: 'morant.png'}]},
+            'Pelicans': {name: 'PELICANS', city: 'NEW ORLEANS', abbr: 'NOP', colors: ['#0C2340', '#C8102E'], file: 'pelicans.png', players: [{name: 'Zion Williamson', file: 'zion.png'}]},
+            'Spurs': {name: 'SPURS', city: 'SAN ANTONIO', abbr: 'SAS', colors: ['#C4CED4', '#000000'], file: 'spurs.png', players: [{name: 'Victor Wembanyama', file: 'wemby.png'}]}
+        };
+
+        /* =========================================================
+           LAYOUT CONFIG SYSTEM
+           ========================================================= */
+        const LAYOUTS = {
+            square: {
+                width: 1080, height: 1080,
+                header: { y: 52, fontSize: 42 },
+                teams: { y: 100, panelW: 420, panelH: 230, logoSize: 200, spacing: 'auto' },
+                infoBoxes: { marginTop: 30, boxW: 300, boxH: 72, gap: 18, labelSize: 18, valueSize: 30, radius: 10 },
+                props: {
+                    arrangement: 'side-by-side',
+                    marginTop: 35,
+                    boxW: 420, boxH: 400, gap: 20,
+                    playerScale: 0.75,
+                    nameSize: 36, propSize: 28, oddsSize: 52,
+                    nameBannerH: 34, propStripH: 40
+                },
+                promo: { marginTop: 30, width: 700, height: 100, titleSize: 30, rulesSize: 13, radius: 12 },
+                footer: { bottomMargin: 20, logoW: 240, logoH: 75, textSize: 44 }
+            },
+            portrait: {
+                width: 1080, height: 1350,
+                header: { y: 55, fontSize: 44 },
+                teams: { y: 110, panelW: 440, panelH: 260, logoSize: 220, spacing: 'auto' },
+                infoBoxes: { marginTop: 35, boxW: 310, boxH: 80, gap: 18, labelSize: 19, valueSize: 32, radius: 10 },
+                props: {
+                    arrangement: 'side-by-side',
+                    marginTop: 40,
+                    boxW: 440, boxH: 460, gap: 20,
+                    playerScale: 0.78,
+                    nameSize: 38, propSize: 30, oddsSize: 56,
+                    nameBannerH: 36, propStripH: 42
+                },
+                promo: { marginTop: 35, width: 720, height: 110, titleSize: 32, rulesSize: 14, radius: 12 },
+                footer: { bottomMargin: 25, logoW: 260, logoH: 82, textSize: 48 }
+            },
+            stories: {
+                width: 1080, height: 1920,
+                header: { y: 65, fontSize: 48 },
+                teams: { y: 120, panelW: 460, panelH: 280, logoSize: 240, spacing: 'auto' },
+                infoBoxes: { marginTop: 40, boxW: 320, boxH: 85, gap: 18, labelSize: 20, valueSize: 34, radius: 12 },
+                props: {
+                    arrangement: 'stacked',
+                    marginTop: 45,
+                    boxW: 540, boxH: 500, gap: 35,
+                    playerScale: 0.82,
+                    nameSize: 42, propSize: 32, oddsSize: 62,
+                    nameBannerH: 40, propStripH: 44
+                },
+                promo: { marginTop: 40, width: 760, height: 120, titleSize: 34, rulesSize: 15, radius: 14 },
+                footer: { bottomMargin: 30, logoW: 280, logoH: 90, textSize: 52 }
+            }
+        };
+
+        /* =========================================================
+           DRAWING UTILITIES
+           ========================================================= */
+        const Draw = {
+            roundedRect(ctx, x, y, w, h, r) {
+                r = Math.min(r, w / 2, h / 2);
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+            },
+
+            gradientFill(ctx, x, y, w, h, stops) {
+                const g = ctx.createLinearGradient(x, y, x + w, y);
+                stops.forEach(([pos, color]) => g.addColorStop(pos, color));
+                return g;
+            },
+
+            textWithOutline(ctx, text, x, y, fillStyle, strokeWidth) {
+                if (strokeWidth) {
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = strokeWidth;
+                    ctx.lineJoin = 'round';
+                    ctx.strokeText(text, x, y);
+                }
+                ctx.fillStyle = fillStyle;
+                ctx.fillText(text, x, y);
+            },
+
+            wrapText(ctx, text, x, y, maxW, lineH) {
+                const words = text.split(' ');
+                let line = '';
+                let curY = y;
+                for (let i = 0; i < words.length; i++) {
+                    const test = line + words[i] + ' ';
+                    if (ctx.measureText(test).width > maxW && i > 0) {
+                        ctx.fillText(line.trim(), x, curY);
+                        line = words[i] + ' ';
+                        curY += lineH;
+                    } else {
+                        line = test;
+                    }
+                }
+                ctx.fillText(line.trim(), x, curY);
+                return curY;
+            },
+
+            drawImageCover(ctx, img, x, y, w, h) {
+                const imgRatio = img.width / img.height;
+                const boxRatio = w / h;
+                let dw, dh, ox, oy;
+                if (imgRatio > boxRatio) {
+                    dh = h; dw = h * imgRatio;
+                    ox = x - (dw - w) / 2; oy = y;
+                } else {
+                    dw = w; dh = w / imgRatio;
+                    ox = x; oy = y - (dh - h) / 2;
+                }
+                ctx.drawImage(img, ox, oy, dw, dh);
+            },
+
+            drawPlayerCutout(ctx, img, x, y, w, h, scale) {
+                // Clip to box, fill width, show upper body/torso
+                ctx.save();
+                Draw.roundedRect(ctx, x, y, w, h, 12);
+                ctx.clip();
+
+                const imgRatio = img.width / img.height;
+                // Fill the full box width
+                let drawW = w;
+                let drawH = drawW / imgRatio;
+                // If image is too short to cover the box, scale to cover height
+                if (drawH < h) {
+                    drawH = h;
+                    drawW = drawH * imgRatio;
+                }
+                // Center horizontally
+                const drawX = x + (w - drawW) / 2;
+                // Anchor from top — show head and torso, crop legs at bottom
+                const drawY = y;
+                ctx.drawImage(img, drawX, drawY, drawW, drawH);
+                ctx.restore();
+            }
+        };
+
+        function fitText(ctx, text, font, maxW, minSize) {
+            let size = parseInt(font.match(/\d+/)[0]);
+            const fontBase = font.replace(/\d+/, '');
+            while (size > (minSize || 12)) {
+                ctx.font = size + fontBase;
+                if (ctx.measureText(text).width <= maxW) break;
+                size -= 2;
+            }
+            ctx.font = size + fontBase;
+            return size;
+        }
+
+        /* =========================================================
+           PROP LEG MANAGEMENT & PARLAY ODDS
+           ========================================================= */
+        const PROP_OPTIONS = `
+            <option value="">--</option>
+            <option value="Points">PTS</option>
+            <option value="Rebounds">REB</option>
+            <option value="Assists">AST</option>
+            <option value="3-Pointers">3PT</option>
+            <option value="Steals">STL</option>
+            <option value="Blocks">BLK</option>`;
+
+        const PROP_ABBR = {'Points':'PTS','Rebounds':'REB','Assists':'AST','3-Pointers':'3PT','Steals':'STL','Blocks':'BLK'};
+
+        function addPropLeg(side) {
+            const container = document.getElementById(side + 'Legs');
+            const row = document.createElement('div');
+            row.className = 'prop-leg';
+            row.innerHTML = `
+                <select class="leg-type">${PROP_OPTIONS}</select>
+                <input type="text" class="leg-line" placeholder="O 28.5">
+                <input type="text" class="leg-odds" placeholder="-110" oninput="calculateParlayOdds('${side}')">
+                <button type="button" class="btn-remove-leg" onclick="removePropLeg(this, '${side}')">&times;</button>`;
+            container.appendChild(row);
+            calculateParlayOdds(side);
+        }
+
+        function removePropLeg(btn, side) {
+            btn.closest('.prop-leg').remove();
+            calculateParlayOdds(side);
+        }
+
+        function americanToDecimal(odds) {
+            const n = parseFloat(odds);
+            if (isNaN(n)) return null;
+            return n > 0 ? (n / 100) + 1 : (100 / Math.abs(n)) + 1;
+        }
+
+        function decimalToAmerican(dec) {
+            if (dec >= 2) return '+' + Math.round((dec - 1) * 100);
+            return '-' + Math.round(100 / (dec - 1));
+        }
+
+        function calculateParlayOdds(side) {
+            const container = document.getElementById(side + 'Legs');
+            const display = document.getElementById(side + 'ParlayDisplay');
+            const oddsEl = document.getElementById(side + 'ParlayOdds');
+            const legs = container.querySelectorAll('.prop-leg');
+
+            const decimals = [];
+            legs.forEach(leg => {
+                const d = americanToDecimal(leg.querySelector('.leg-odds').value);
+                if (d) decimals.push(d);
+            });
+
+            if (decimals.length >= 1) {
+                const combined = decimals.reduce((a, b) => a * b, 1);
+                oddsEl.textContent = decimalToAmerican(combined);
+                display.style.display = 'flex';
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        function getLegs(side) {
+            const container = document.getElementById(side + 'Legs');
+            const rows = container.querySelectorAll('.prop-leg');
+            const legs = [];
+            rows.forEach(row => {
+                const type = row.querySelector('.leg-type').value;
+                const line = row.querySelector('.leg-line').value.trim();
+                const odds = row.querySelector('.leg-odds').value.trim();
+                if (type && line) legs.push({ type, line, odds, abbr: PROP_ABBR[type] || type });
+            });
+            return legs;
+        }
+
+        function getParlayOddsStr(side) {
+            const el = document.getElementById(side + 'ParlayOdds');
+            return el ? el.textContent : '--';
+        }
+
+        /* =========================================================
+           FORM INITIALIZATION
+           ========================================================= */
+        function initTeamDropdowns() {
+            const awaySelect = document.getElementById('awayTeam');
+            const homeSelect = document.getElementById('homeTeam');
+            Object.keys(teams).sort().forEach(teamKey => {
+                const team = teams[teamKey];
+                awaySelect.add(new Option(`${team.city} ${team.name}`, teamKey));
+                homeSelect.add(new Option(`${team.city} ${team.name}`, teamKey));
+            });
+        }
+
+        function updatePlayerDropdown(teamKey, selectId) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">-- Select Player --</option>';
+            if (teamKey && teams[teamKey] && teams[teamKey].players) {
+                teams[teamKey].players.forEach(player => {
+                    select.add(new Option(player.name, player.name));
+                });
+            }
+        }
+
+        document.getElementById('awayTeam').addEventListener('change', function() {
+            updatePlayerDropdown(this.value, 'awayPlayer');
+        });
+        document.getElementById('homeTeam').addEventListener('change', function() {
+            updatePlayerDropdown(this.value, 'homePlayer');
+        });
+        document.getElementById('promoSelect').addEventListener('change', function() {
+            document.getElementById('customPromoSection').open = (this.value === 'CUSTOM');
+        });
+
+        /* =========================================================
+           ASSET LOADING
+           ========================================================= */
+        function loadLogos() {
+            const teamNames = Object.keys(teams);
+            const bgNames = ['field1', 'field2', 'court', 'court2', 'court3', 'court4', 'court5'];
+            let loaded = 0;
+
+            function updateStatus() {
+                const status = document.getElementById('status');
+                status.textContent = loaded > 0 ? `${loaded} of ${teamNames.length} team logos loaded` : 'Ready — add .png files for custom logos';
+            }
+
+            bgNames.forEach(bgName => {
+                const img = new Image();
+                img.onload = () => backgrounds[bgName] = img;
+                img.onerror = () => {
+                    const altImg = new Image();
+                    altImg.onload = () => backgrounds[bgName] = altImg;
+                    altImg.src = bgName + '.jpeg';
+                };
+                img.src = bgName + '.jpg';
+            });
+
+            const vipImg = new Image();
+            vipImg.onload = () => vipLogo = vipImg;
+            vipImg.src = 'vip-logo.png';
+
+            teamNames.forEach(teamName => {
+                const img = new Image();
+                img.onload = () => { teamLogos[teamName] = img; loaded++; updateStatus(); };
+                img.onerror = () => { if (loaded === 0 && teamNames.indexOf(teamName) === teamNames.length - 1) updateStatus(); };
+                img.src = teams[teamName].file;
+            });
+
+            teamNames.forEach(teamName => {
+                if (teams[teamName].players) {
+                    teams[teamName].players.forEach(player => {
+                        const img = new Image();
+                        img.onload = () => {
+                            if (!playerPNGs[teamName]) playerPNGs[teamName] = {};
+                            playerPNGs[teamName][player.name] = img;
+                        };
+                        img.onerror = () => {
+                            const jpgImg = new Image();
+                            jpgImg.onload = () => {
+                                if (!playerPNGs[teamName]) playerPNGs[teamName] = {};
+                                playerPNGs[teamName][player.name] = jpgImg;
+                            };
+                            jpgImg.onerror = () => {
+                                const jpegImg = new Image();
+                                jpegImg.onload = () => {
+                                    if (!playerPNGs[teamName]) playerPNGs[teamName] = {};
+                                    playerPNGs[teamName][player.name] = jpegImg;
+                                };
+                                jpegImg.src = player.file.replace('.png', '.jpeg');
+                            };
+                            jpgImg.src = player.file.replace('.png', '.jpg');
+                        };
+                        img.src = player.file;
+                    });
+                }
+            });
+            setTimeout(updateStatus, 500);
+        }
+
+        /* =========================================================
+           RENDER PIPELINE
+           ========================================================= */
+
+        function renderBackground(ctx, width, height) {
+            const bgKeys = Object.keys(backgrounds);
+            if (bgKeys.length > 0) {
+                const bg = backgrounds[bgKeys[Math.floor(Math.random() * bgKeys.length)]];
+                Draw.drawImageCover(ctx, bg, 0, 0, width, height);
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(0, 0, width, height);
+            } else {
+                // Fallback court
+                const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, height);
+                grad.addColorStop(0, '#2a1a0a');
+                grad.addColorStop(0.5, '#1a1010');
+                grad.addColorStop(1, '#0a0505');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(width * 0.1, height * 0.2, width * 0.8, height * 0.6);
+                ctx.beginPath();
+                ctx.arc(width/2, height/2, 120, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            // Vignette
+            const vig = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height) * 0.7);
+            vig.addColorStop(0, 'rgba(0,0,0,0)');
+            vig.addColorStop(0.7, 'rgba(0,0,0,0.3)');
+            vig.addColorStop(1, 'rgba(0,0,0,0.6)');
+            ctx.fillStyle = vig;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function renderHeader(ctx, width, L, awayData, homeData) {
+            const y = L.header.y;
+            const fs = L.header.fontSize;
+            const headerGrad = ctx.createLinearGradient(300, y, 780, y);
+            headerGrad.addColorStop(0, awayData.colors[1]);
+            headerGrad.addColorStop(0.5, '#FFD700');
+            headerGrad.addColorStop(1, homeData.colors[1]);
+            ctx.font = `bold ${fs}px Bebas Neue, Impact, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 5;
+            ctx.lineJoin = 'round';
+            ctx.strokeText('VIPCLUB NBA MATCHUP', width / 2, y);
+            ctx.fillStyle = headerGrad;
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 8;
+            ctx.fillText('VIPCLUB NBA MATCHUP', width / 2, y);
+            ctx.shadowBlur = 0;
+            return y;
+        }
+
+        function renderTeamPanels(ctx, width, L, awayData, homeData, awayKey, homeKey) {
+            const cfg = L.teams;
+            const y = cfg.y;
+            const w = cfg.panelW;
+            const h = cfg.panelH;
+            const spacing = (width - w * 2) / 3;
+            const r = 14;
+
+            function drawTeam(x, team, teamKey) {
+                // Panel background
+                ctx.save();
+                const panelGrad = ctx.createLinearGradient(x, y, x, y + h);
+                panelGrad.addColorStop(0, team.colors[0] + '50');
+                panelGrad.addColorStop(0.5, team.colors[1] + '30');
+                panelGrad.addColorStop(1, team.colors[0] + '20');
+                Draw.roundedRect(ctx, x, y, w, h, r);
+                ctx.fillStyle = panelGrad;
+                ctx.fill();
+
+                // Border
+                Draw.roundedRect(ctx, x, y, w, h, r);
+                ctx.strokeStyle = team.colors[1] + 'AA';
+                ctx.lineWidth = 3;
+                ctx.shadowColor = team.colors[1];
+                ctx.shadowBlur = 6;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Top accent line
+                ctx.save();
+                Draw.roundedRect(ctx, x, y, w, 5, r);
+                ctx.clip();
+                const accentGrad = ctx.createLinearGradient(x, y, x + w, y);
+                accentGrad.addColorStop(0, team.colors[1]);
+                accentGrad.addColorStop(0.5, '#FFFFFF');
+                accentGrad.addColorStop(1, team.colors[1]);
+                ctx.fillStyle = accentGrad;
+                ctx.fillRect(x, y, w, 5);
+                ctx.restore();
+
+                // Logo
+                const logoSize = cfg.logoSize;
+                const logoX = x + w / 2;
+                const logoY = y + h * 0.48;
+
+                if (teamLogos[teamKey]) {
+                    ctx.shadowColor = team.colors[1];
+                    ctx.shadowBlur = 8;
+                    ctx.drawImage(teamLogos[teamKey], logoX - logoSize/2, logoY - logoSize/2, logoSize, logoSize);
+                    ctx.shadowBlur = 0;
+                } else {
+                    ctx.shadowColor = team.colors[1];
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.arc(logoX, logoY, logoSize/2, 0, Math.PI * 2);
+                    const logoGrad = ctx.createRadialGradient(logoX, logoY, 0, logoX, logoY, logoSize/2);
+                    logoGrad.addColorStop(0, team.colors[1]);
+                    logoGrad.addColorStop(0.6, team.colors[0]);
+                    logoGrad.addColorStop(1, team.colors[1]);
+                    ctx.fillStyle = logoGrad;
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = `900 ${Math.floor(logoSize * 0.4)}px Bebas Neue, Impact, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(team.abbr, logoX, logoY);
+                    ctx.textBaseline = 'alphabetic';
+                    ctx.shadowBlur = 0;
+                }
+                ctx.restore();
+            }
+
+            ctx.save(); drawTeam(spacing, awayData, awayKey); ctx.restore();
+            ctx.save(); drawTeam(spacing + w + spacing, homeData, homeKey); ctx.restore();
+
+            return y + h;
+        }
+
+        function renderInfoBoxes(ctx, width, L, spread, total, tipOff, awayData, homeData) {
+            const cfg = L.infoBoxes;
+            const teamY = L.teams.y + L.teams.panelH;
+            const y = teamY + cfg.marginTop;
+            const bw = cfg.boxW;
+            const bh = cfg.boxH;
+            const gap = cfg.gap;
+            const r = cfg.radius;
+            const startX = (width - (bw * 3 + gap * 2)) / 2;
+
+            function drawBox(bx, label, value) {
+                ctx.save();
+                // Background
+                const grad = ctx.createLinearGradient(bx, y, bx + bw, y);
+                grad.addColorStop(0, awayData.colors[1] + '25');
+                grad.addColorStop(0.5, '#FFD70025');
+                grad.addColorStop(1, homeData.colors[1] + '25');
+                Draw.roundedRect(ctx, bx, y, bw, bh, r);
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                // Border
+                Draw.roundedRect(ctx, bx, y, bw, bh, r);
+                ctx.strokeStyle = '#333333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = '#FFD700';
+                ctx.font = `700 ${cfg.labelSize}px Montserrat, Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillText(label, bx + bw/2, y + bh * 0.38);
+
+                // Value
+                ctx.fillStyle = value ? '#FFFFFF' : '#666666';
+                ctx.font = `900 ${cfg.valueSize}px Montserrat, Arial`;
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 3;
+                ctx.fillText(value || 'TBD', bx + bw/2, y + bh * 0.78);
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            }
+
+            drawBox(startX, 'SPREAD', spread);
+            drawBox(startX + bw + gap, 'TOTAL', total);
+            drawBox(startX + (bw + gap) * 2, 'TIP-OFF', tipOff);
+
+            return y + bh;
+        }
+
+        function renderPlayerProps(ctx, width, L, state) {
+            const cfg = L.props;
+            const { awayPlayer, awayLegs, awayParlayOdds,
+                    homePlayer, homeLegs, homeParlayOdds,
+                    awayData, homeData, awayKey, homeKey } = state;
+
+            const hasAway = awayPlayer && awayLegs.length > 0;
+            const hasHome = homePlayer && homeLegs.length > 0;
+            if (!hasAway && !hasHome) return state.cursorY;
+
+            let y = state.cursorY + cfg.marginTop;
+            const bw = cfg.boxW;
+            const bh = cfg.boxH;
+
+            function drawPropBox(bx, by, player, legs, parlayOdds, team, teamKey) {
+                const r = 14;
+                const numLegs = legs.length;
+                ctx.save();
+
+                // === 1. CLIP entire card ===
+                Draw.roundedRect(ctx, bx, by, bw, bh, r);
+                ctx.clip();
+
+                // === 2. Team-color background ===
+                const bgGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
+                bgGrad.addColorStop(0, team.colors[0]);
+                bgGrad.addColorStop(1, team.colors[1] + '88');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(bx, by, bw, bh);
+
+                // === 3. Player image — fills entire card ===
+                if (playerPNGs[teamKey] && playerPNGs[teamKey][player]) {
+                    const img = playerPNGs[teamKey][player];
+                    const imgRatio = img.width / img.height;
+                    let drawW = bw;
+                    let drawH = drawW / imgRatio;
+                    if (drawH < bh * 0.85) {
+                        drawH = bh * 0.85;
+                        drawW = drawH * imgRatio;
+                    }
+                    const drawX = bx + (bw - drawW) / 2;
+                    ctx.drawImage(img, drawX, by, drawW, drawH);
+                } else {
+                    const cx = bx + bw/2;
+                    const cy = by + bh * 0.35;
+                    const pr = Math.min(bw, bh) * 0.2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, pr, 0, Math.PI * 2);
+                    const pGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr);
+                    pGrad.addColorStop(0, team.colors[1]);
+                    pGrad.addColorStop(1, team.colors[0]);
+                    ctx.fillStyle = pGrad;
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
+                    const names = player.split(' ');
+                    const initials = names.length >= 2 ? names[0][0] + names[names.length-1][0] : player.substring(0,2);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = `900 ${Math.floor(pr * 0.8)}px Bebas Neue, Impact, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(initials.toUpperCase(), cx, cy);
+                    ctx.textBaseline = 'alphabetic';
+                }
+
+                // === 4. Bottom gradient fade — taller for more legs ===
+                const fadeRatio = Math.min(0.35 + numLegs * 0.06, 0.6);
+                const fadeH = bh * fadeRatio;
+                const fadeGrad = ctx.createLinearGradient(bx, by + bh - fadeH, bx, by + bh);
+                fadeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+                fadeGrad.addColorStop(0.35, 'rgba(0,0,0,0.55)');
+                fadeGrad.addColorStop(1, 'rgba(0,0,0,0.93)');
+                ctx.fillStyle = fadeGrad;
+                ctx.fillRect(bx, by + bh - fadeH, bw, fadeH);
+
+                // === 5. Layout text from bottom up ===
+                const bottomPad = 20;
+                const oddsBlockH = 50;
+                const pillH = numLegs > 3 ? 24 : numLegs > 2 ? 26 : 28;
+                const pillGap = 4;
+                const nameGap = 10;
+
+                // --- Parlay odds (Orbitron, bold, glowing) ---
+                const oddsY = by + bh - bottomPad;
+                const oddsFontSize = Math.floor(cfg.oddsSize * 0.75);
+                ctx.font = `900 ${oddsFontSize}px Orbitron, Montserrat, Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                ctx.lineJoin = 'round';
+                const oddsLabel = numLegs > 1 ? `PARLAY  ${parlayOdds}` : parlayOdds;
+                // Outer glow
+                ctx.shadowColor = '#4CAF50';
+                ctx.shadowBlur = 18;
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 5;
+                ctx.strokeText(oddsLabel, bx + bw/2, oddsY);
+                // Gradient fill
+                const oddsGrad = ctx.createLinearGradient(bx + 20, oddsY, bx + bw - 20, oddsY);
+                oddsGrad.addColorStop(0, '#66BB6A');
+                oddsGrad.addColorStop(0.5, '#FFFFFF');
+                oddsGrad.addColorStop(1, '#66BB6A');
+                ctx.fillStyle = oddsGrad;
+                ctx.fillText(oddsLabel, bx + bw/2, oddsY);
+                ctx.shadowBlur = 0;
+
+                // --- Leg pills — stacked upward ---
+                let curY = oddsY - oddsBlockH;
+                const legFontSize = numLegs > 3 ? cfg.propSize - 6 : numLegs > 2 ? cfg.propSize - 4 : cfg.propSize - 2;
+
+                for (let i = legs.length - 1; i >= 0; i--) {
+                    const leg = legs[i];
+                    const text = `${leg.line} ${leg.abbr}`;
+                    const pillW = bw - 24;
+                    const pillX = bx + 12;
+                    const pillY = curY - pillH / 2;
+
+                    // Pill background with slight border
+                    Draw.roundedRect(ctx, pillX, pillY, pillW, pillH, pillH / 2);
+                    const propBg = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY);
+                    propBg.addColorStop(0, 'rgba(30,100,55,0.92)');
+                    propBg.addColorStop(0.5, 'rgba(46,130,70,0.95)');
+                    propBg.addColorStop(1, 'rgba(30,100,55,0.92)');
+                    ctx.fillStyle = propBg;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(102,187,106,0.5)';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    // Pill text
+                    ctx.font = `800 ${legFontSize}px Montserrat, Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 3;
+                    ctx.fillText(text, bx + bw/2, pillY + pillH / 2);
+                    ctx.shadowBlur = 0;
+
+                    curY -= pillH + pillGap;
+                }
+
+                // --- Player name above legs (large, Bebas Neue, outlined) ---
+                const nameY = curY - nameGap;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                const nameFont = `900 ${cfg.nameSize}px Bebas Neue, Impact, sans-serif`;
+                fitText(ctx, player.toUpperCase(), nameFont, bw - 20, 18);
+                // Black outline
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 6;
+                ctx.lineJoin = 'round';
+                ctx.strokeText(player.toUpperCase(), bx + bw/2, nameY);
+                // White fill with subtle glow
+                ctx.shadowColor = 'rgba(255,255,255,0.4)';
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillText(player.toUpperCase(), bx + bw/2, nameY);
+                ctx.shadowBlur = 0;
+
+                ctx.restore();
+
+                // === 6. Card border (outside clip) ===
+                ctx.save();
+                Draw.roundedRect(ctx, bx, by, bw, bh, r);
+                const borderGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
+                borderGrad.addColorStop(0, team.colors[1]);
+                borderGrad.addColorStop(0.5, '#FFFFFF66');
+                borderGrad.addColorStop(1, team.colors[1]);
+                ctx.strokeStyle = borderGrad;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            if (hasAway && hasHome) {
+                if (cfg.arrangement === 'side-by-side') {
+                    const totalW = bw * 2 + cfg.gap;
+                    const startX = (width - totalW) / 2;
+                    drawPropBox(startX, y, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
+                    drawPropBox(startX + bw + cfg.gap, y, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
+                    y += bh;
+                } else {
+                    const bx = (width - bw) / 2;
+                    drawPropBox(bx, y, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
+                    y += bh + cfg.gap;
+                    drawPropBox(bx, y, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
+                    y += bh;
+                }
+            } else {
+                const bx = (width - bw) / 2;
+                if (hasAway) {
+                    drawPropBox(bx, y, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
+                } else {
+                    drawPropBox(bx, y, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
+                }
+                y += bh;
+            }
+
+            return y;
+        }
+
+        function renderPromo(ctx, width, height, L, promo, cursorY) {
+            if (!promo) return cursorY;
+
+            const promos = {
+                'RISK_FREE': {title: 'RISK FREE WAGER', rules: 'First wager after deposit \u2022 Straight bets only \u2022 Lose? Get full wager back!'},
+                'MATCH_100': {title: '100% MATCH BONUS', rules: 'Deposit $100 = Get $100 freeplay ($200 total) \u2022 7x rollover'},
+                'MATCH_50': {title: '50% MATCH BONUS', rules: 'Deposit $100 = Get $50 freeplay ($150 total) \u2022 4x rollover'},
+                'VIP_CODE': {title: 'VIP BONUS CODE', rules: 'Exclusive offer for VIP members'},
+                'CUSTOM': {
+                    title: document.getElementById('customPromoTitle').value || 'SPECIAL OFFER',
+                    rules: document.getElementById('customPromoRules').value || 'Limited time offer'
+                }
+            };
+            const p = promos[promo];
+            if (!p) return cursorY;
+
+            const cfg = L.promo;
+            const pw = cfg.width;
+            const ph = cfg.height;
+            const px = (width - pw) / 2;
+            const maxY = height - L.footer.logoH - L.footer.bottomMargin - 20;
+            const py = Math.min(cursorY + cfg.marginTop, maxY - ph);
+            const r = cfg.radius;
+
+            ctx.save();
+            // Background
+            Draw.roundedRect(ctx, px, py, pw, ph, r);
+            const bg = ctx.createLinearGradient(px, py, px + pw, py);
+            bg.addColorStop(0, 'rgba(26,77,46,0.35)');
+            bg.addColorStop(0.5, 'rgba(38,102,56,0.45)');
+            bg.addColorStop(1, 'rgba(26,77,46,0.35)');
+            ctx.fillStyle = bg;
+            ctx.fill();
+
+            // Border
+            Draw.roundedRect(ctx, px, py, pw, ph, r);
+            const borderGrad = ctx.createLinearGradient(px, py, px + pw, py);
+            borderGrad.addColorStop(0, '#4CAF50');
+            borderGrad.addColorStop(0.5, '#81C784');
+            borderGrad.addColorStop(1, '#4CAF50');
+            ctx.strokeStyle = borderGrad;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#4CAF50';
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Title
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `900 ${cfg.titleSize}px Bebas Neue, Impact, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.shadowColor = '#4CAF50';
+            ctx.shadowBlur = 6;
+            ctx.fillText(p.title, px + pw/2, py + ph * 0.38);
+            ctx.shadowBlur = 0;
+
+            // Rules
+            if (p.rules) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = `600 ${cfg.rulesSize}px Montserrat, Arial`;
+                const maxW = pw - 40;
+                const lineH = cfg.rulesSize + 5;
+                Draw.wrapText(ctx, p.rules, px + pw/2, py + ph * 0.62, maxW, lineH);
+            }
+            ctx.restore();
+
+            return py + ph;
+        }
+
+        function renderFooter(ctx, width, height, L) {
+            const cfg = L.footer;
+            const y = height - cfg.logoH - cfg.bottomMargin;
+
+            if (vipLogo) {
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 8;
+                ctx.drawImage(vipLogo, 40, y, cfg.logoW, cfg.logoH);
+                ctx.shadowBlur = 0;
+            } else {
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = '#FFD700';
+                ctx.font = `900 ${cfg.textSize}px Bebas Neue, Impact, sans-serif`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillText('VIPCLUB', 40, y + cfg.logoH * 0.7);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        /* =========================================================
+           MAIN GENERATE
+           ========================================================= */
+        function generateGraphic() {
+            const awayTeam = document.getElementById('awayTeam').value;
+            const homeTeam = document.getElementById('homeTeam').value;
+            const spread = document.getElementById('spread').value;
+            const total = document.getElementById('total').value;
+            const tipOff = document.getElementById('tipOff').value;
+            const format = document.querySelector('input[name="format"]:checked').value;
+
+            if (!awayTeam || !homeTeam) return alert('Please select both teams!');
+            if (awayTeam === homeTeam) return alert('Teams must be different!');
+
+            const L = LAYOUTS[format];
+            const { width, height } = L;
+
+            let canvas = document.getElementById('canvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'canvas';
+                document.getElementById('canvasContainer').innerHTML = '';
+                document.getElementById('canvasContainer').appendChild(canvas);
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            const awayData = teams[awayTeam];
+            const homeData = teams[homeTeam];
+
+            // Player prop data — multi-leg parlays
+            const awayPlayer = document.getElementById('awayPlayer').value;
+            const homePlayer = document.getElementById('homePlayer').value;
+            const awayLegs = getLegs('away');
+            const homeLegs = getLegs('home');
+            const awayParlayOdds = awayLegs.length > 0 ? getParlayOddsStr('away') : '';
+            const homeParlayOdds = homeLegs.length > 0 ? getParlayOddsStr('home') : '';
+            const promo = document.getElementById('promoSelect').value;
+
+            // 1. Background
+            renderBackground(ctx, width, height);
+
+            // 2. Header
+            renderHeader(ctx, width, L, awayData, homeData);
+
+            // 3. Team panels
+            const teamBottom = renderTeamPanels(ctx, width, L, awayData, homeData, awayTeam, homeTeam);
+
+            // 4. Info boxes
+            const infoBottom = renderInfoBoxes(ctx, width, L, spread, total, tipOff, awayData, homeData);
+
+            // 5. Player props
+            const state = {
+                cursorY: infoBottom,
+                awayPlayer, awayLegs, awayParlayOdds,
+                homePlayer, homeLegs, homeParlayOdds,
+                awayData, homeData,
+                awayKey: awayTeam, homeKey: homeTeam
+            };
+            const propsBottom = renderPlayerProps(ctx, width, L, state);
+
+            // 6. Promo
+            const promoBottom = renderPromo(ctx, width, height, L, promo, propsBottom);
+
+            // 7. Footer
+            renderFooter(ctx, width, height, L);
+
+            // Caption & download
+            generateCaption(awayData, homeData, spread, total, tipOff, promo, awayPlayer, awayLegs, awayParlayOdds, homePlayer, homeLegs, homeParlayOdds);
+            document.getElementById('downloadBtn').style.display = 'block';
+        }
+
+        /* =========================================================
+           CAPTION
+           ========================================================= */
+        function generateCaption(away, home, spread, total, tipOff, promo, awayPlayer, awayLegs, awayParlayOdds, homePlayer, homeLegs, homeParlayOdds) {
+            const promoTitles = {
+                'RISK_FREE': 'Risk Free Wager',
+                'MATCH_100': '100% Match Bonus',
+                'MATCH_50': '50% Match Bonus',
+                'VIP_CODE': 'VIP Bonus Code',
+                'CUSTOM': document.getElementById('customPromoTitle').value || 'Special Offer'
+            };
+            const promoText = promo ? ` ${promoTitles[promo]} available!` : '';
+            let propText = '';
+            function legsToStr(player, legs, odds) {
+                if (!player || legs.length === 0) return '';
+                const desc = legs.map(l => `${l.line} ${l.abbr}`).join(' / ');
+                return ` + ${player} ${desc} (${odds})`;
+            }
+            propText += legsToStr(awayPlayer, awayLegs, awayParlayOdds);
+            propText += legsToStr(homePlayer, homeLegs, homeParlayOdds);
+
+            const captions = [
+                `${away.city} ${away.name} @ ${home.city} ${home.name} | Spread: ${spread || 'TBD'} | Total: ${total || 'TBD'}${tipOff ? ' | ' + tipOff : ''}${promoText}${propText} Bet now at VipClub! #VIPCLUB #NBA #SportsBetting #NBAProps`,
+                `GAME NIGHT: ${away.name} vs ${home.name}${tipOff ? ' | ' + tipOff : ''} | ${spread || 'TBD'} | ${total || 'TBD'}${promoText}${propText} #VIPCLUB #NBA #Sportsbook`,
+                `${away.name} @ ${home.name} at VipClub!${promoText}${propText} Lock in your picks! #VIPCLUB #NBA #SportsBetting`,
+                `${away.abbr} vs ${home.abbr} | ${spread || 'TBD'} | ${total || 'TBD'}${tipOff ? ' | ' + tipOff : ''}${promoText}${propText} Tap to bet! #VIPCLUB #NBA`,
+                `Sharp play: ${away.name} at ${home.name}${promoText}${propText} Get your bets in! #VIPCLUB #NBA #SportsBetting`
+            ];
+
+            document.getElementById('caption').textContent = captions[Math.floor(Math.random() * captions.length)];
+            document.getElementById('captionSection').classList.add('active');
+        }
+
+        /* =========================================================
+           DOWNLOAD & COPY
+           ========================================================= */
+        function downloadGraphic() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return alert('Generate a graphic first!');
+            const awayTeam = document.getElementById('awayTeam').value;
+            const homeTeam = document.getElementById('homeTeam').value;
+            const format = document.querySelector('input[name="format"]:checked').value;
+            const link = document.createElement('a');
+            link.download = `vipclub-nba-${teams[awayTeam].abbr}-vs-${teams[homeTeam].abbr}-${format}-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        function copyCaption() {
+            const caption = document.getElementById('caption').textContent;
+            navigator.clipboard.writeText(caption).then(() => {
+                const btn = document.getElementById('copyText');
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            });
+        }
+
+        /* =========================================================
+           THE ODDS API — LIVE DATA INTEGRATION
+           ========================================================= */
+        const ODDS_API_BASE = 'https://api.the-odds-api.com';
+        const BOOKMAKER_PRIORITY = ['fanduel', 'draftkings', 'betmgm'];
+
+        const PROP_MARKET_MAP = {
+            'player_points': 'Points',
+            'player_rebounds': 'Rebounds',
+            'player_assists': 'Assists',
+            'player_threes': '3-Pointers',
+            'player_steals': 'Steals',
+            'player_blocks': 'Blocks'
+        };
+
+        function getApiKey() {
+            return document.getElementById('oddsApiKey').value.trim();
+        }
+
+        function saveApiKey() {
+            const key = getApiKey();
+            if (key) {
+                localStorage.setItem('oddsApiKey', key);
+                const status = document.getElementById('apiKeyStatus');
+                status.textContent = 'Key saved';
+                status.className = 'api-key-status saved';
+            }
+        }
+
+        function loadApiKey() {
+            const saved = localStorage.getItem('oddsApiKey');
+            if (saved) {
+                document.getElementById('oddsApiKey').value = saved;
+                const status = document.getElementById('apiKeyStatus');
+                status.textContent = 'Key loaded from storage';
+                status.className = 'api-key-status saved';
+            }
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('oddsApiKey');
+            const btn = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'HIDE';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'SHOW';
+            }
+        }
+
+        document.getElementById('oddsApiKey').addEventListener('change', saveApiKey);
+
+        function pickBookmaker(bookmakers) {
+            for (const key of BOOKMAKER_PRIORITY) {
+                const found = bookmakers.find(b => b.key === key);
+                if (found) return found;
+            }
+            return bookmakers[0] || null;
+        }
+
+        function matchTeamName(apiTeamName, teamData) {
+            const api = apiTeamName.toLowerCase();
+            const name = teamData.name.toLowerCase();
+            const city = teamData.city.toLowerCase();
+            return api.includes(name) || api.includes(city);
+        }
+
+        function formatTipOff(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+            const timeStr = date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                timeZone: 'America/New_York',
+                hour12: true
+            }) + ' ET';
+
+            if (isToday) return 'Tonight ' + timeStr;
+            if (isTomorrow) return 'Tomorrow ' + timeStr;
+            const dayStr = date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                timeZone: 'America/New_York'
+            });
+            return dayStr + ' ' + timeStr;
+        }
+
+        async function fetchNBAOdds(apiKey) {
+            const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/odds?regions=us&markets=spreads,totals&oddsFormat=american&apiKey=${apiKey}`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+            return resp.json();
+        }
+
+        async function fetchNBAEvents(apiKey) {
+            const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/events?apiKey=${apiKey}`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+            return resp.json();
+        }
+
+        async function fetchPlayerProps(apiKey, eventId) {
+            const markets = 'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks';
+            const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/events/${eventId}/odds?regions=us&markets=${markets}&oddsFormat=american&apiKey=${apiKey}`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+            return resp.json();
+        }
+
+        async function fetchLiveLines() {
+            const apiKey = getApiKey();
+            if (!apiKey) return alert('Please enter your Odds API key first.');
+
+            const awayKey = document.getElementById('awayTeam').value;
+            const homeKey = document.getElementById('homeTeam').value;
+            if (!awayKey || !homeKey) return alert('Please select both teams first.');
+
+            const statusEl = document.getElementById('fetchLiveStatus');
+            const btn = document.getElementById('fetchLiveBtn');
+            statusEl.textContent = 'Fetching...';
+            statusEl.className = 'fetch-status';
+            btn.disabled = true;
+
+            try {
+                const games = await fetchNBAOdds(apiKey);
+                const awayData = teams[awayKey];
+                const homeData = teams[homeKey];
+
+                const game = games.find(g =>
+                    (matchTeamName(g.away_team, awayData) && matchTeamName(g.home_team, homeData)) ||
+                    (matchTeamName(g.home_team, awayData) && matchTeamName(g.away_team, homeData))
+                );
+
+                if (!game) {
+                    statusEl.textContent = 'No game found for this matchup today';
+                    statusEl.className = 'fetch-status error';
+                    btn.disabled = false;
+                    return;
+                }
+
+                const book = pickBookmaker(game.bookmakers);
+                if (!book) {
+                    statusEl.textContent = 'No bookmaker odds available';
+                    statusEl.className = 'fetch-status error';
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Spread
+                const spreadMarket = book.markets.find(m => m.key === 'spreads');
+                if (spreadMarket) {
+                    // Find the outcome matching our away team
+                    const awayOutcome = spreadMarket.outcomes.find(o => matchTeamName(o.name, awayData));
+                    if (awayOutcome) {
+                        const sign = awayOutcome.point > 0 ? '+' : '';
+                        document.getElementById('spread').value = `${awayData.abbr} ${sign}${awayOutcome.point}`;
+                    }
+                }
+
+                // Total
+                const totalMarket = book.markets.find(m => m.key === 'totals');
+                if (totalMarket) {
+                    const overOutcome = totalMarket.outcomes.find(o => o.name === 'Over');
+                    if (overOutcome) {
+                        document.getElementById('total').value = `O/U ${overOutcome.point}`;
+                    }
+                }
+
+                // Tip-Off
+                if (game.commence_time) {
+                    document.getElementById('tipOff').value = formatTipOff(game.commence_time);
+                }
+
+                statusEl.textContent = 'Lines updated!';
+                statusEl.className = 'fetch-status success';
+            } catch (err) {
+                statusEl.textContent = err.message || 'Fetch failed';
+                statusEl.className = 'fetch-status error';
+            }
+            btn.disabled = false;
+        }
+
+        async function fetchPlayerPropsUI(side) {
+            const apiKey = getApiKey();
+            if (!apiKey) return alert('Please enter your Odds API key first.');
+
+            const awayKey = document.getElementById('awayTeam').value;
+            const homeKey = document.getElementById('homeTeam').value;
+            if (!awayKey || !homeKey) return alert('Please select both teams first.');
+
+            const playerName = document.getElementById(side + 'Player').value;
+            if (!playerName) return alert('Please select a player first.');
+
+            const statusEl = document.getElementById(side + 'FetchPropsStatus');
+            statusEl.textContent = 'Fetching events...';
+            statusEl.className = 'fetch-status';
+
+            try {
+                // Step 1: Get events (FREE) to find the event ID
+                const events = await fetchNBAEvents(apiKey);
+                const awayData = teams[awayKey];
+                const homeData = teams[homeKey];
+
+                const event = events.find(e =>
+                    (matchTeamName(e.away_team, awayData) && matchTeamName(e.home_team, homeData)) ||
+                    (matchTeamName(e.home_team, awayData) && matchTeamName(e.away_team, homeData))
+                );
+
+                if (!event) {
+                    statusEl.textContent = 'No game found for this matchup';
+                    statusEl.className = 'fetch-status error';
+                    return;
+                }
+
+                statusEl.textContent = 'Fetching props...';
+
+                // Step 2: Fetch player props for this event
+                const propsData = await fetchPlayerProps(apiKey, event.id);
+                const book = pickBookmaker(propsData.bookmakers || []);
+
+                if (!book) {
+                    statusEl.textContent = 'No prop odds available';
+                    statusEl.className = 'fetch-status error';
+                    return;
+                }
+
+                // Step 3: Filter outcomes matching the player
+                const legsToAdd = [];
+                const playerLower = playerName.toLowerCase();
+
+                for (const market of book.markets) {
+                    const propType = PROP_MARKET_MAP[market.key];
+                    if (!propType) continue;
+
+                    // Find the Over outcome for this player
+                    const overOutcome = market.outcomes.find(o =>
+                        o.description && o.description.toLowerCase() === playerLower && o.name === 'Over'
+                    );
+
+                    if (overOutcome) {
+                        legsToAdd.push({
+                            type: propType,
+                            line: `O ${overOutcome.point}`,
+                            odds: overOutcome.price > 0 ? `+${overOutcome.price}` : `${overOutcome.price}`
+                        });
+                    }
+                }
+
+                if (legsToAdd.length === 0) {
+                    statusEl.textContent = 'No props found for ' + playerName;
+                    statusEl.className = 'fetch-status error';
+                    return;
+                }
+
+                // Step 4: Clear existing legs and populate
+                const container = document.getElementById(side + 'Legs');
+                container.innerHTML = '';
+
+                for (const leg of legsToAdd) {
+                    const row = document.createElement('div');
+                    row.className = 'prop-leg';
+                    row.innerHTML = `
+                        <select class="leg-type">${PROP_OPTIONS}</select>
+                        <input type="text" class="leg-line" placeholder="O 28.5">
+                        <input type="text" class="leg-odds" placeholder="-110" oninput="calculateParlayOdds('${side}')">
+                        <button type="button" class="btn-remove-leg" onclick="removePropLeg(this, '${side}')">&times;</button>`;
+                    container.appendChild(row);
+
+                    row.querySelector('.leg-type').value = leg.type;
+                    row.querySelector('.leg-line').value = leg.line;
+                    row.querySelector('.leg-odds').value = leg.odds;
+                }
+
+                calculateParlayOdds(side);
+
+                statusEl.textContent = `${legsToAdd.length} props loaded!`;
+                statusEl.className = 'fetch-status success';
+            } catch (err) {
+                statusEl.textContent = err.message || 'Fetch failed';
+                statusEl.className = 'fetch-status error';
+            }
+        }
+
+        /* =========================================================
+           INIT
+           ========================================================= */
+        initTeamDropdowns();
+        loadLogos();
+        loadApiKey();
+        addPropLeg('away');
+        addPropLeg('home');
+    </script>
+</body>
+</html>
