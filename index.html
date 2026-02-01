@@ -409,36 +409,6 @@
             margin-bottom: 16px;
         }
 
-        /* API Key Input */
-        .api-key-input {
-            width: 100%;
-            padding: 9px 12px;
-            font-size: 13px;
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-input);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            transition: border-color 0.2s;
-        }
-        .api-key-input:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px var(--gold-glow);
-        }
-        .api-key-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .api-key-row input { flex: 1; }
-        .api-key-status {
-            font-size: 0.72em;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .api-key-status.saved { color: var(--green); }
-
         /* Fetch Buttons */
         .btn-fetch {
             padding: 8px 14px;
@@ -498,16 +468,6 @@
         <div class="layout">
             <!-- Form Column -->
             <div class="form-col">
-
-                <!-- API Key -->
-                <div class="card">
-                    <div class="section-title">The Odds API</div>
-                    <div class="api-key-row">
-                        <input type="password" id="oddsApiKey" class="api-key-input" placeholder="Enter your API key from the-odds-api.com">
-                        <button type="button" class="btn-fetch btn-fetch-sm" onclick="toggleApiKeyVisibility()">SHOW</button>
-                    </div>
-                    <div class="api-key-status" id="apiKeyStatus">Free tier = 500 requests/month</div>
-                </div>
 
                 <!-- Format -->
                 <div class="card">
@@ -1678,43 +1638,11 @@
             'player_blocks': 'Blocks'
         };
 
+        const ODDS_API_KEY = '2a80680c21cc4275c9b7d5d5fafa3ef6';
+
         function getApiKey() {
-            return document.getElementById('oddsApiKey').value.trim();
+            return ODDS_API_KEY;
         }
-
-        function saveApiKey() {
-            const key = getApiKey();
-            if (key) {
-                localStorage.setItem('oddsApiKey', key);
-                const status = document.getElementById('apiKeyStatus');
-                status.textContent = 'Key saved';
-                status.className = 'api-key-status saved';
-            }
-        }
-
-        function loadApiKey() {
-            const saved = localStorage.getItem('oddsApiKey');
-            if (saved) {
-                document.getElementById('oddsApiKey').value = saved;
-                const status = document.getElementById('apiKeyStatus');
-                status.textContent = 'Key loaded from storage';
-                status.className = 'api-key-status saved';
-            }
-        }
-
-        function toggleApiKeyVisibility() {
-            const input = document.getElementById('oddsApiKey');
-            const btn = input.nextElementSibling;
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = 'HIDE';
-            } else {
-                input.type = 'password';
-                btn.textContent = 'SHOW';
-            }
-        }
-
-        document.getElementById('oddsApiKey').addEventListener('change', saveApiKey);
 
         function pickBookmaker(bookmakers) {
             for (const key of BOOKMAKER_PRIORITY) {
@@ -1781,7 +1709,7 @@
 
         async function fetchLiveLines() {
             const apiKey = getApiKey();
-            if (!apiKey) return alert('Please enter your Odds API key first.');
+            if (!apiKey) return alert('API key not configured.');
 
             const awayKey = document.getElementById('awayTeam').value;
             const homeKey = document.getElementById('homeTeam').value;
@@ -1854,7 +1782,7 @@
 
         async function fetchPlayerPropsUI(side) {
             const apiKey = getApiKey();
-            if (!apiKey) return alert('Please enter your Odds API key first.');
+            if (!apiKey) return alert('API key not configured.');
 
             const awayKey = document.getElementById('awayTeam').value;
             const homeKey = document.getElementById('homeTeam').value;
@@ -1958,7 +1886,6 @@
            ========================================================= */
         initTeamDropdowns();
         loadLogos();
-        loadApiKey();
         addPropLeg('away');
         addPropLeg('home');
     </script>
