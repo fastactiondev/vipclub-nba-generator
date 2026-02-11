@@ -1100,10 +1100,10 @@
                 status.textContent = loaded > 0 ? `${loaded} of ${teamNames.length} team logos loaded` : 'Ready';
             }
 
-            // Single premium background
+            // Single premium background — darkened hardwood court
             const bgImg = new Image();
             bgImg.onload = () => backgrounds['main'] = bgImg;
-            bgImg.src = 'bg-black-sand.jpg';
+            bgImg.src = 'bg-parquet.jpg';
 
             const vipImg = new Image();
             vipImg.onload = () => vipLogo = vipImg;
@@ -1140,7 +1140,7 @@
             if (bgKeys.length > 0) {
                 const bg = backgrounds[bgKeys[Math.floor(Math.random() * bgKeys.length)]];
                 Draw.drawImageCover(ctx, bg, 0, 0, width, height);
-                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillStyle = 'rgba(0,0,0,0.65)';
                 ctx.fillRect(0, 0, width, height);
             } else {
                 // Fallback court
