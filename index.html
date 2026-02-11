@@ -993,7 +993,7 @@
             row.className = 'prop-leg';
             row.innerHTML = `
                 <select class="leg-type">${PROP_OPTIONS}</select>
-                <input type="text" class="leg-line" placeholder="O 28.5">
+                <input type="text" class="leg-line" placeholder="O/U 28.5">
                 <input type="text" class="leg-odds" placeholder="-110" oninput="calculateParlayOdds('${side}')">
                 <button type="button" class="btn-remove-leg" onclick="removePropLeg(this, '${side}')">&times;</button>`;
             container.appendChild(row);
@@ -1918,7 +1918,7 @@
                     if (overOutcome) {
                         legsToAdd.push({
                             type: propType,
-                            line: `O ${overOutcome.point}`,
+                            line: `O/U ${overOutcome.point}`,
                             odds: overOutcome.price > 0 ? `+${overOutcome.price}` : `${overOutcome.price}`
                         });
                     }
@@ -1939,7 +1939,7 @@
                     row.className = 'prop-leg';
                     row.innerHTML = `
                         <select class="leg-type">${PROP_OPTIONS}</select>
-                        <input type="text" class="leg-line" placeholder="O 28.5">
+                        <input type="text" class="leg-line" placeholder="O/U 28.5">
                         <input type="text" class="leg-odds" placeholder="-110" oninput="calculateParlayOdds('${side}')">
                         <button type="button" class="btn-remove-leg" onclick="removePropLeg(this, '${side}')">&times;</button>`;
                     container.appendChild(row);
