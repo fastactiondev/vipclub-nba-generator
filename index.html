@@ -832,7 +832,7 @@
                     nameSize: 36, propSize: 28, oddsSize: 52,
                     nameBannerH: 34, propStripH: 40
                 },
-                promo: { marginTop: 30, width: 700, height: 100, titleSize: 30, rulesSize: 13, radius: 12 },
+                promo: { marginTop: 40, width: 920, height: 160, titleSize: 40, rulesSize: 17, radius: 16 },
                 footer: { bottomMargin: 20, logoW: 240, logoH: 75, textSize: 44 }
             },
             portrait: {
@@ -848,7 +848,7 @@
                     nameSize: 38, propSize: 30, oddsSize: 56,
                     nameBannerH: 36, propStripH: 42
                 },
-                promo: { marginTop: 35, width: 720, height: 110, titleSize: 32, rulesSize: 14, radius: 12 },
+                promo: { marginTop: 45, width: 940, height: 175, titleSize: 42, rulesSize: 18, radius: 16 },
                 footer: { bottomMargin: 25, logoW: 260, logoH: 82, textSize: 48 }
             },
             stories: {
@@ -864,7 +864,7 @@
                     nameSize: 42, propSize: 32, oddsSize: 62,
                     nameBannerH: 40, propStripH: 44
                 },
-                promo: { marginTop: 40, width: 760, height: 120, titleSize: 34, rulesSize: 15, radius: 14 },
+                promo: { marginTop: 50, width: 960, height: 185, titleSize: 44, rulesSize: 19, radius: 18 },
                 footer: { bottomMargin: 30, logoW: 280, logoH: 90, textSize: 52 }
             }
         };
@@ -1499,13 +1499,14 @@
             if (!promo) return cursorY;
 
             const promos = {
-                'RISK_FREE': {title: 'RISK FREE WAGER', rules: 'First wager after deposit \u2022 Straight bets only \u2022 Lose? Get full wager back!'},
-                'MATCH_100': {title: '100% MATCH BONUS', rules: 'Deposit $100 = Get $100 freeplay ($200 total) \u2022 7x rollover'},
-                'MATCH_50': {title: '50% MATCH BONUS', rules: 'Deposit $100 = Get $50 freeplay ($150 total) \u2022 4x rollover'},
-                'VIP_CODE': {title: 'VIP BONUS CODE', rules: 'Exclusive offer for VIP members'},
+                'RISK_FREE': {title: 'RISK FREE WAGER', rules: 'First wager after deposit \u2022 Straight bets only \u2022 Lose? Get full wager back!', icon: '\uD83D\uDEE1\uFE0F'},
+                'MATCH_100': {title: '100% MATCH BONUS', rules: 'Deposit $100 = Get $100 freeplay ($200 total) \u2022 7x rollover', icon: '\uD83D\uDD25'},
+                'MATCH_50': {title: '50% MATCH BONUS', rules: 'Deposit $100 = Get $50 freeplay ($150 total) \u2022 4x rollover', icon: '\uD83D\uDCB0'},
+                'VIP_CODE': {title: 'VIP BONUS CODE', rules: 'Exclusive offer for VIP members', icon: '\u2B50'},
                 'CUSTOM': {
                     title: document.getElementById('customPromoTitle').value || 'SPECIAL OFFER',
-                    rules: document.getElementById('customPromoRules').value || 'Limited time offer'
+                    rules: document.getElementById('customPromoRules').value || 'Limited time offer',
+                    icon: '\uD83C\uDF1F'
                 }
             };
             const p = promos[promo];
@@ -1520,37 +1521,87 @@
             const r = cfg.radius;
 
             ctx.save();
-            // Frosted glass background
+
+            // === Outer glow behind the box ===
+            ctx.shadowColor = 'rgba(255, 215, 0, 0.25)';
+            ctx.shadowBlur = 30;
             Draw.roundedRect(ctx, px, py, pw, ph, r);
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillStyle = 'rgba(0,0,0,0.01)';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // === Background — dark with gold tint gradient ===
+            Draw.roundedRect(ctx, px, py, pw, ph, r);
+            const bgGrad = ctx.createLinearGradient(px, py, px + pw, py + ph);
+            bgGrad.addColorStop(0, 'rgba(40, 30, 5, 0.85)');
+            bgGrad.addColorStop(0.5, 'rgba(20, 15, 2, 0.9)');
+            bgGrad.addColorStop(1, 'rgba(40, 30, 5, 0.85)');
+            ctx.fillStyle = bgGrad;
             ctx.fill();
 
-            // Subtle border
+            // === Gold gradient border (2px) ===
             Draw.roundedRect(ctx, px, py, pw, ph, r);
-            ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-            ctx.lineWidth = 1;
+            const borderGrad = ctx.createLinearGradient(px, py, px + pw, py);
+            borderGrad.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+            borderGrad.addColorStop(0.3, 'rgba(255, 215, 0, 0.8)');
+            borderGrad.addColorStop(0.5, '#FFD700');
+            borderGrad.addColorStop(0.7, 'rgba(255, 215, 0, 0.8)');
+            borderGrad.addColorStop(1, 'rgba(255, 215, 0, 0.3)');
+            ctx.strokeStyle = borderGrad;
+            ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Small gold accent line at top
-            const accentW = pw * 0.3;
+            // === Corner accent diamonds ===
+            const dSize = 6;
             ctx.fillStyle = '#FFD700';
-            ctx.fillRect(px + (pw - accentW) / 2, py, accentW, 2);
+            // Top-left
+            ctx.beginPath();
+            ctx.moveTo(px + r, py - dSize); ctx.lineTo(px + r + dSize, py); ctx.lineTo(px + r, py + dSize); ctx.lineTo(px + r - dSize, py); ctx.closePath(); ctx.fill();
+            // Top-right
+            ctx.beginPath();
+            ctx.moveTo(px + pw - r, py - dSize); ctx.lineTo(px + pw - r + dSize, py); ctx.lineTo(px + pw - r, py + dSize); ctx.lineTo(px + pw - r - dSize, py); ctx.closePath(); ctx.fill();
 
-            // Title — gold, clean
-            ctx.fillStyle = '#FFD700';
-            ctx.font = `900 ${cfg.titleSize}px Bebas Neue, Impact, sans-serif`;
+            // === Horizontal gold line separators ===
+            const titleBottomY = py + ph * 0.48;
+            const lineGrad = ctx.createLinearGradient(px + 30, 0, px + pw - 30, 0);
+            lineGrad.addColorStop(0, 'rgba(255, 215, 0, 0)');
+            lineGrad.addColorStop(0.2, 'rgba(255, 215, 0, 0.4)');
+            lineGrad.addColorStop(0.5, 'rgba(255, 215, 0, 0.6)');
+            lineGrad.addColorStop(0.8, 'rgba(255, 215, 0, 0.4)');
+            lineGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+            ctx.strokeStyle = lineGrad;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px + 30, titleBottomY);
+            ctx.lineTo(px + pw - 30, titleBottomY);
+            ctx.stroke();
+
+            // === Title — bold gold with slight depth ===
             ctx.textAlign = 'center';
             ctx.textBaseline = 'alphabetic';
-            ctx.fillText(p.title, px + pw/2, py + ph * 0.42);
+            const titleY = py + ph * 0.38;
+            ctx.font = `900 ${cfg.titleSize}px Bebas Neue, Impact, sans-serif`;
 
-            // Rules — muted white
+            // Gold gradient fill on title
+            const titleGrad = ctx.createLinearGradient(0, titleY - cfg.titleSize, 0, titleY);
+            titleGrad.addColorStop(0, '#FFF5CC');
+            titleGrad.addColorStop(0.4, '#FFD700');
+            titleGrad.addColorStop(1, '#DAA520');
+            ctx.fillStyle = titleGrad;
+            ctx.shadowColor = 'rgba(255, 215, 0, 0.3)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(p.title, px + pw/2, titleY);
+            ctx.shadowBlur = 0;
+
+            // === Rules — clean white, slightly larger ===
             if (p.rules) {
-                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.fillStyle = 'rgba(255,255,255,0.85)';
                 ctx.font = `600 ${cfg.rulesSize}px Montserrat, Arial`;
-                const maxW = pw - 50;
-                const lineH = cfg.rulesSize + 5;
-                Draw.wrapText(ctx, p.rules, px + pw/2, py + ph * 0.68, maxW, lineH);
+                const maxW = pw - 60;
+                const lineH = cfg.rulesSize + 6;
+                Draw.wrapText(ctx, p.rules, px + pw/2, py + ph * 0.65, maxW, lineH);
             }
+
             ctx.restore();
 
             return py + ph;
