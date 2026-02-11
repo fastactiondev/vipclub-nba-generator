@@ -1061,10 +1061,10 @@
         function initTeamDropdowns() {
             const awaySelect = document.getElementById('awayTeam');
             const homeSelect = document.getElementById('homeTeam');
-            Object.keys(teams).sort().forEach(teamKey => {
+            Object.keys(teams).sort((a, b) => teams[a].name.localeCompare(teams[b].name)).forEach(teamKey => {
                 const team = teams[teamKey];
-                awaySelect.add(new Option(`${team.city} ${team.name}`, teamKey));
-                homeSelect.add(new Option(`${team.city} ${team.name}`, teamKey));
+                awaySelect.add(new Option(`${team.name} - ${team.city}`, teamKey));
+                homeSelect.add(new Option(`${team.name} - ${team.city}`, teamKey));
             });
         }
 
