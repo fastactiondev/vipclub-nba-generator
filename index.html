@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VipClub NBA Graphics Generator</title>
+    <title>VipClub NBA Generator v2</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -640,36 +640,183 @@
         const backgrounds = {};
 
         const teams = {
-            'Celtics': {name: 'CELTICS', city: 'BOSTON', abbr: 'BOS', colors: ['#007A33', '#BA9653'], file: 'celtics.png', players: [{name: 'Jayson Tatum', file: 'tatum.png'}, {name: 'Jaylen Brown', file: 'brown.png'}]},
-            'Nets': {name: 'NETS', city: 'BROOKLYN', abbr: 'BKN', colors: ['#000000', '#FFFFFF'], file: 'nets.png', players: [{name: 'Mikal Bridges', file: 'bridges.png'}]},
-            'Knicks': {name: 'KNICKS', city: 'NEW YORK', abbr: 'NYK', colors: ['#006BB6', '#F58426'], file: 'knicks.png', players: [{name: 'Jalen Brunson', file: 'brunson.png'}]},
-            '76ers': {name: '76ERS', city: 'PHILADELPHIA', abbr: 'PHI', colors: ['#006BB6', '#ED174C'], file: '76ers.png', players: [{name: 'Joel Embiid', file: 'embiid.png'}]},
-            'Raptors': {name: 'RAPTORS', city: 'TORONTO', abbr: 'TOR', colors: ['#CE1141', '#000000'], file: 'raptors.png', players: [{name: 'Scottie Barnes', file: 'barnes.png'}]},
-            'Bulls': {name: 'BULLS', city: 'CHICAGO', abbr: 'CHI', colors: ['#CE1141', '#000000'], file: 'bulls.png', players: [{name: 'Zach LaVine', file: 'lavine.png'}]},
-            'Cavaliers': {name: 'CAVALIERS', city: 'CLEVELAND', abbr: 'CLE', colors: ['#860038', '#FDBB30'], file: 'cavaliers.png', players: [{name: 'Donovan Mitchell', file: 'mitchell.png'}]},
-            'Pistons': {name: 'PISTONS', city: 'DETROIT', abbr: 'DET', colors: ['#C8102E', '#1D42BA'], file: 'pistons.png', players: [{name: 'Cade Cunningham', file: 'cunningham.png'}]},
-            'Pacers': {name: 'PACERS', city: 'INDIANA', abbr: 'IND', colors: ['#002D62', '#FDBB30'], file: 'pacers.png', players: [{name: 'Tyrese Haliburton', file: 'haliburton.png'}]},
-            'Bucks': {name: 'BUCKS', city: 'MILWAUKEE', abbr: 'MIL', colors: ['#00471B', '#EEE1C6'], file: 'bucks.png', players: [{name: 'Giannis Antetokounmpo', file: 'giannis.png'}]},
-            'Hawks': {name: 'HAWKS', city: 'ATLANTA', abbr: 'ATL', colors: ['#E03A3E', '#C1D32F'], file: 'hawks.png', players: [{name: 'Trae Young', file: 'young.png'}]},
-            'Hornets': {name: 'HORNETS', city: 'CHARLOTTE', abbr: 'CHA', colors: ['#1D1160', '#00788C'], file: 'hornets.png', players: [{name: 'LaMelo Ball', file: 'ball.png'}]},
-            'Heat': {name: 'HEAT', city: 'MIAMI', abbr: 'MIA', colors: ['#98002E', '#F9A01B'], file: 'heat.png', players: [{name: 'Tyler Herro', file: 'herro.png'}]},
-            'Magic': {name: 'MAGIC', city: 'ORLANDO', abbr: 'ORL', colors: ['#0077C0', '#C4CED4'], file: 'magic.png', players: [{name: 'Paolo Banchero', file: 'paolo.png'}]},
-            'Wizards': {name: 'WIZARDS', city: 'WASHINGTON', abbr: 'WAS', colors: ['#002B5C', '#E31837'], file: 'wizards.png', players: [{name: 'Jordan Poole', file: 'poole.png'}]},
-            'Nuggets': {name: 'NUGGETS', city: 'DENVER', abbr: 'DEN', colors: ['#0E2240', '#FEC524'], file: 'nuggets.png', players: [{name: 'Nikola Jokic', file: 'jokic.png'}]},
-            'Timberwolves': {name: 'TIMBERWOLVES', city: 'MINNESOTA', abbr: 'MIN', colors: ['#0C2340', '#236192'], file: 'timberwolves.png', players: [{name: 'Anthony Edwards', file: 'edwards.png'}]},
-            'Thunder': {name: 'THUNDER', city: 'OKLAHOMA CITY', abbr: 'OKC', colors: ['#007AC1', '#EF3B24'], file: 'thunder.png', players: [{name: 'Shai Gilgeous-Alexander', file: 'shai.png'}]},
-            'Trail Blazers': {name: 'TRAIL BLAZERS', city: 'PORTLAND', abbr: 'POR', colors: ['#E03A3E', '#000000'], file: 'trailblazers.png', players: [{name: 'Scoot Henderson', file: 'henderson.png'}]},
-            'Jazz': {name: 'JAZZ', city: 'UTAH', abbr: 'UTA', colors: ['#002B5C', '#F9A01B'], file: 'jazz.png', players: [{name: 'Lauri Markkanen', file: 'markkanen.png'}]},
-            'Warriors': {name: 'WARRIORS', city: 'GOLDEN STATE', abbr: 'GSW', colors: ['#1D428A', '#FFC72C'], file: 'warriors.png', players: [{name: 'Stephen Curry', file: 'curry.png'}, {name: 'Jimmy Butler', file: 'butler.png'}]},
-            'Clippers': {name: 'CLIPPERS', city: 'LA', abbr: 'LAC', colors: ['#C8102E', '#1D428A'], file: 'clippers.png', players: [{name: 'Kawhi Leonard', file: 'kawhi.png'}]},
-            'Lakers': {name: 'LAKERS', city: 'LOS ANGELES', abbr: 'LAL', colors: ['#552583', '#FDB927'], file: 'lakers.png', players: [{name: 'LeBron James', file: 'lebron.png'}, {name: 'Luka Doncic', file: 'doncic.png'}]},
-            'Suns': {name: 'SUNS', city: 'PHOENIX', abbr: 'PHX', colors: ['#E56020', '#1E1164'], file: 'suns.png', players: [{name: 'Devin Booker', file: 'booker.png'}]},
-            'Kings': {name: 'KINGS', city: 'SACRAMENTO', abbr: 'SAC', colors: ['#5A2D81', '#63727A'], file: 'kings.png', players: [{name: 'De\'Aaron Fox', file: 'fox.png'}]},
-            'Mavericks': {name: 'MAVERICKS', city: 'DALLAS', abbr: 'DAL', colors: ['#00538C', '#B8C4D2'], file: 'mavericks.png', players: [{name: 'Kyrie Irving', file: 'kyrie.png'}, {name: 'Anthony Davis', file: 'ad.png'}, {name: 'Cooper Flagg', file: 'flagg.png'}]},
-            'Rockets': {name: 'ROCKETS', city: 'HOUSTON', abbr: 'HOU', colors: ['#CE1141', '#C4CED4'], file: 'rockets.png', players: [{name: 'Jalen Green', file: 'jalengreen.png'}, {name: 'Kevin Durant', file: 'durant.png'}]},
-            'Grizzlies': {name: 'GRIZZLIES', city: 'MEMPHIS', abbr: 'MEM', colors: ['#5D76A9', '#F5B112'], file: 'grizzlies.png', players: [{name: 'Ja Morant', file: 'morant.png'}]},
-            'Pelicans': {name: 'PELICANS', city: 'NEW ORLEANS', abbr: 'NOP', colors: ['#0C2340', '#C8102E'], file: 'pelicans.png', players: [{name: 'Zion Williamson', file: 'zion.png'}]},
-            'Spurs': {name: 'SPURS', city: 'SAN ANTONIO', abbr: 'SAS', colors: ['#C4CED4', '#000000'], file: 'spurs.png', players: [{name: 'Victor Wembanyama', file: 'wemby.png'}]}
+            'Celtics': {name: 'CELTICS', city: 'BOSTON', abbr: 'BOS', colors: ['#007A33', '#BA9653'], logo: 'assets/logos/celtics.svg', players: [
+                {name: 'Jayson Tatum', file: 'assets/players/1628369.png'},
+                {name: 'Jaylen Brown', file: 'assets/players/1627759.png'},
+                {name: 'Derrick White', file: 'assets/players/1628401.png'},
+                {name: 'Kristaps Porzingis', file: 'assets/players/204001.png'},
+                {name: 'Jrue Holiday', file: 'assets/players/201950.png'}
+            ]},
+            'Nets': {name: 'NETS', city: 'BROOKLYN', abbr: 'BKN', colors: ['#000000', '#FFFFFF'], logo: 'assets/logos/nets.svg', players: [
+                {name: 'Cam Thomas', file: 'assets/players/1630560.png'},
+                {name: 'Dennis Schroder', file: 'assets/players/1627737.png'},
+                {name: 'Ben Simmons', file: 'assets/players/1627732.png'}
+            ]},
+            'Knicks': {name: 'KNICKS', city: 'NEW YORK', abbr: 'NYK', colors: ['#006BB6', '#F58426'], logo: 'assets/logos/knicks.svg', players: [
+                {name: 'Jalen Brunson', file: 'assets/players/1628973.png'},
+                {name: 'Karl-Anthony Towns', file: 'assets/players/1626157.png'},
+                {name: 'Mikal Bridges', file: 'assets/players/1628969.png'},
+                {name: 'OG Anunoby', file: 'assets/players/1628384.png'},
+                {name: 'Josh Hart', file: 'assets/players/1628404.png'}
+            ]},
+            '76ers': {name: '76ERS', city: 'PHILADELPHIA', abbr: 'PHI', colors: ['#006BB6', '#ED174C'], logo: 'assets/logos/76ers.svg', players: [
+                {name: 'Joel Embiid', file: 'assets/players/203954.png'},
+                {name: 'Tyrese Maxey', file: 'assets/players/1630178.png'},
+                {name: 'Paul George', file: 'assets/players/202331.png'}
+            ]},
+            'Raptors': {name: 'RAPTORS', city: 'TORONTO', abbr: 'TOR', colors: ['#CE1141', '#000000'], logo: 'assets/logos/raptors.svg', players: [
+                {name: 'Scottie Barnes', file: 'assets/players/1630567.png'},
+                {name: 'RJ Barrett', file: 'assets/players/1629628.png'},
+                {name: 'Immanuel Quickley', file: 'assets/players/1630193.png'},
+                {name: 'Jakob Poeltl', file: 'assets/players/1627751.png'}
+            ]},
+            'Bulls': {name: 'BULLS', city: 'CHICAGO', abbr: 'CHI', colors: ['#CE1141', '#000000'], logo: 'assets/logos/bulls.svg', players: [
+                {name: 'Zach LaVine', file: 'assets/players/203897.png'},
+                {name: 'Coby White', file: 'assets/players/1629632.png'},
+                {name: 'Nikola Vucevic', file: 'assets/players/202696.png'},
+                {name: 'Josh Giddey', file: 'assets/players/1630581.png'}
+            ]},
+            'Cavaliers': {name: 'CAVALIERS', city: 'CLEVELAND', abbr: 'CLE', colors: ['#860038', '#FDBB30'], logo: 'assets/logos/cavaliers.svg', players: [
+                {name: 'Donovan Mitchell', file: 'assets/players/1628378.png'},
+                {name: 'Darius Garland', file: 'assets/players/1629636.png'},
+                {name: 'Evan Mobley', file: 'assets/players/1630596.png'},
+                {name: 'Jarrett Allen', file: 'assets/players/1628386.png'}
+            ]},
+            'Pistons': {name: 'PISTONS', city: 'DETROIT', abbr: 'DET', colors: ['#C8102E', '#1D42BA'], logo: 'assets/logos/pistons.svg', players: [
+                {name: 'Cade Cunningham', file: 'assets/players/1630595.png'},
+                {name: 'Jaden Ivey', file: 'assets/players/1631093.png'},
+                {name: 'Jalen Duren', file: 'assets/players/1631105.png'},
+                {name: 'Ausar Thompson', file: 'assets/players/1641709.png'}
+            ]},
+            'Pacers': {name: 'PACERS', city: 'INDIANA', abbr: 'IND', colors: ['#002D62', '#FDBB30'], logo: 'assets/logos/pacers.svg', players: [
+                {name: 'Tyrese Haliburton', file: 'assets/players/1630169.png'},
+                {name: 'Pascal Siakam', file: 'assets/players/1627783.png'},
+                {name: 'Myles Turner', file: 'assets/players/1626167.png'},
+                {name: 'Andrew Nembhard', file: 'assets/players/1630621.png'}
+            ]},
+            'Bucks': {name: 'BUCKS', city: 'MILWAUKEE', abbr: 'MIL', colors: ['#00471B', '#EEE1C6'], logo: 'assets/logos/bucks.svg', players: [
+                {name: 'Giannis Antetokounmpo', file: 'assets/players/203507.png'},
+                {name: 'Damian Lillard', file: 'assets/players/203081.png'},
+                {name: 'Khris Middleton', file: 'assets/players/203114.png'},
+                {name: 'Brook Lopez', file: 'assets/players/201572.png'}
+            ]},
+            'Hawks': {name: 'HAWKS', city: 'ATLANTA', abbr: 'ATL', colors: ['#E03A3E', '#C1D32F'], logo: 'assets/logos/hawks.svg', players: [
+                {name: 'Trae Young', file: 'assets/players/1629027.png'},
+                {name: 'Jalen Johnson', file: 'assets/players/1630552.png'},
+                {name: "De'Andre Hunter", file: 'assets/players/1629631.png'},
+                {name: 'Zaccharie Risacher', file: 'assets/players/1642258.png'}
+            ]},
+            'Hornets': {name: 'HORNETS', city: 'CHARLOTTE', abbr: 'CHA', colors: ['#1D1160', '#00788C'], logo: 'assets/logos/hornets.svg', players: [
+                {name: 'LaMelo Ball', file: 'assets/players/1630163.png'},
+                {name: 'Brandon Miller', file: 'assets/players/1641706.png'},
+                {name: 'Miles Bridges', file: 'assets/players/1628970.png'},
+                {name: 'Mark Williams', file: 'assets/players/1631109.png'}
+            ]},
+            'Heat': {name: 'HEAT', city: 'MIAMI', abbr: 'MIA', colors: ['#98002E', '#F9A01B'], logo: 'assets/logos/heat.svg', players: [
+                {name: 'Jimmy Butler', file: 'assets/players/202710.png'},
+                {name: 'Bam Adebayo', file: 'assets/players/1628389.png'},
+                {name: 'Tyler Herro', file: 'assets/players/1629639.png'}
+            ]},
+            'Magic': {name: 'MAGIC', city: 'ORLANDO', abbr: 'ORL', colors: ['#0077C0', '#C4CED4'], logo: 'assets/logos/magic.svg', players: [
+                {name: 'Paolo Banchero', file: 'assets/players/1631094.png'},
+                {name: 'Franz Wagner', file: 'assets/players/1630532.png'},
+                {name: 'Jalen Suggs', file: 'assets/players/1630591.png'}
+            ]},
+            'Wizards': {name: 'WIZARDS', city: 'WASHINGTON', abbr: 'WAS', colors: ['#002B5C', '#E31837'], logo: 'assets/logos/wizards.svg', players: [
+                {name: 'Kyle Kuzma', file: 'assets/players/1628398.png'},
+                {name: 'Jordan Poole', file: 'assets/players/1629673.png'},
+                {name: 'Bilal Coulibaly', file: 'assets/players/1641731.png'},
+                {name: 'Alex Sarr', file: 'assets/players/1642259.png'}
+            ]},
+            'Nuggets': {name: 'NUGGETS', city: 'DENVER', abbr: 'DEN', colors: ['#0E2240', '#FEC524'], logo: 'assets/logos/nuggets.svg', players: [
+                {name: 'Nikola Jokic', file: 'assets/players/203999.png'},
+                {name: 'Jamal Murray', file: 'assets/players/1627750.png'},
+                {name: 'Michael Porter Jr.', file: 'assets/players/1629008.png'},
+                {name: 'Aaron Gordon', file: 'assets/players/203932.png'}
+            ]},
+            'Timberwolves': {name: 'TIMBERWOLVES', city: 'MINNESOTA', abbr: 'MIN', colors: ['#0C2340', '#236192'], logo: 'assets/logos/timberwolves.svg', players: [
+                {name: 'Anthony Edwards', file: 'assets/players/1630162.png'},
+                {name: 'Julius Randle', file: 'assets/players/203944.png'},
+                {name: 'Rudy Gobert', file: 'assets/players/203497.png'},
+                {name: 'Jaden McDaniels', file: 'assets/players/1630183.png'}
+            ]},
+            'Thunder': {name: 'THUNDER', city: 'OKLAHOMA CITY', abbr: 'OKC', colors: ['#007AC1', '#EF3B24'], logo: 'assets/logos/thunder.svg', players: [
+                {name: 'Shai Gilgeous-Alexander', file: 'assets/players/1628983.png'},
+                {name: 'Jalen Williams', file: 'assets/players/1631114.png'},
+                {name: 'Chet Holmgren', file: 'assets/players/1631096.png'},
+                {name: 'Lu Dort', file: 'assets/players/1629652.png'}
+            ]},
+            'Trail Blazers': {name: 'TRAIL BLAZERS', city: 'PORTLAND', abbr: 'POR', colors: ['#E03A3E', '#000000'], logo: 'assets/logos/trailblazers.svg', players: [
+                {name: 'Anfernee Simons', file: 'assets/players/1629014.png'},
+                {name: 'Scoot Henderson', file: 'assets/players/1630703.png'},
+                {name: 'Shaedon Sharpe', file: 'assets/players/1631101.png'},
+                {name: 'Jerami Grant', file: 'assets/players/203924.png'},
+                {name: 'Deandre Ayton', file: 'assets/players/1629028.png'}
+            ]},
+            'Jazz': {name: 'JAZZ', city: 'UTAH', abbr: 'UTA', colors: ['#002B5C', '#F9A01B'], logo: 'assets/logos/jazz.svg', players: [
+                {name: 'Lauri Markkanen', file: 'assets/players/1628374.png'},
+                {name: 'Collin Sexton', file: 'assets/players/1629012.png'},
+                {name: 'Walker Kessler', file: 'assets/players/1631117.png'},
+                {name: 'Keyonte George', file: 'assets/players/1641718.png'}
+            ]},
+            'Warriors': {name: 'WARRIORS', city: 'GOLDEN STATE', abbr: 'GSW', colors: ['#1D428A', '#FFC72C'], logo: 'assets/logos/warriors.svg', players: [
+                {name: 'Stephen Curry', file: 'assets/players/201939.png'},
+                {name: 'Andrew Wiggins', file: 'assets/players/203952.png'},
+                {name: 'Draymond Green', file: 'assets/players/203110.png'},
+                {name: 'Jonathan Kuminga', file: 'assets/players/1630228.png'}
+            ]},
+            'Clippers': {name: 'CLIPPERS', city: 'LA', abbr: 'LAC', colors: ['#C8102E', '#1D428A'], logo: 'assets/logos/clippers.svg', players: [
+                {name: 'Kawhi Leonard', file: 'assets/players/202695.png'},
+                {name: 'James Harden', file: 'assets/players/201935.png'},
+                {name: 'Norman Powell', file: 'assets/players/1626181.png'},
+                {name: 'Ivica Zubac', file: 'assets/players/1627826.png'}
+            ]},
+            'Lakers': {name: 'LAKERS', city: 'LOS ANGELES', abbr: 'LAL', colors: ['#552583', '#FDB927'], logo: 'assets/logos/lakers.svg', players: [
+                {name: 'LeBron James', file: 'assets/players/2544.png'},
+                {name: 'Anthony Davis', file: 'assets/players/203076.png'},
+                {name: 'Austin Reaves', file: 'assets/players/1630559.png'},
+                {name: 'Dalton Knecht', file: 'assets/players/1642261.png'}
+            ]},
+            'Suns': {name: 'SUNS', city: 'PHOENIX', abbr: 'PHX', colors: ['#E56020', '#1E1164'], logo: 'assets/logos/suns.svg', players: [
+                {name: 'Kevin Durant', file: 'assets/players/201142.png'},
+                {name: 'Devin Booker', file: 'assets/players/1626164.png'},
+                {name: 'Bradley Beal', file: 'assets/players/203078.png'}
+            ]},
+            'Kings': {name: 'KINGS', city: 'SACRAMENTO', abbr: 'SAC', colors: ['#5A2D81', '#63727A'], logo: 'assets/logos/kings.svg', players: [
+                {name: "De'Aaron Fox", file: 'assets/players/1628368.png'},
+                {name: 'Domantas Sabonis', file: 'assets/players/1627734.png'},
+                {name: 'DeMar DeRozan', file: 'assets/players/201942.png'},
+                {name: 'Keegan Murray', file: 'assets/players/1631099.png'}
+            ]},
+            'Mavericks': {name: 'MAVERICKS', city: 'DALLAS', abbr: 'DAL', colors: ['#00538C', '#B8C4D2'], logo: 'assets/logos/mavericks.svg', players: [
+                {name: 'Luka Doncic', file: 'assets/players/1629029.png'},
+                {name: 'Kyrie Irving', file: 'assets/players/202681.png'},
+                {name: 'Klay Thompson', file: 'assets/players/202691.png'},
+                {name: 'P.J. Washington', file: 'assets/players/1629023.png'},
+                {name: 'Dereck Lively II', file: 'assets/players/1641726.png'}
+            ]},
+            'Rockets': {name: 'ROCKETS', city: 'HOUSTON', abbr: 'HOU', colors: ['#CE1141', '#C4CED4'], logo: 'assets/logos/rockets.svg', players: [
+                {name: 'Jalen Green', file: 'assets/players/1630224.png'},
+                {name: 'Alperen Sengun', file: 'assets/players/1630578.png'},
+                {name: 'Fred VanVleet', file: 'assets/players/1627832.png'},
+                {name: 'Amen Thompson', file: 'assets/players/1641708.png'}
+            ]},
+            'Grizzlies': {name: 'GRIZZLIES', city: 'MEMPHIS', abbr: 'MEM', colors: ['#5D76A9', '#F5B112'], logo: 'assets/logos/grizzlies.svg', players: [
+                {name: 'Ja Morant', file: 'assets/players/1629630.png'},
+                {name: 'Desmond Bane', file: 'assets/players/1630217.png'},
+                {name: 'Jaren Jackson Jr.', file: 'assets/players/1628991.png'}
+            ]},
+            'Pelicans': {name: 'PELICANS', city: 'NEW ORLEANS', abbr: 'NOP', colors: ['#0C2340', '#C8102E'], logo: 'assets/logos/pelicans.svg', players: [
+                {name: 'Zion Williamson', file: 'assets/players/1629627.png'},
+                {name: 'Brandon Ingram', file: 'assets/players/1627742.png'},
+                {name: 'CJ McCollum', file: 'assets/players/203468.png'},
+                {name: 'Dejounte Murray', file: 'assets/players/1627749.png'}
+            ]},
+            'Spurs': {name: 'SPURS', city: 'SAN ANTONIO', abbr: 'SAS', colors: ['#C4CED4', '#000000'], logo: 'assets/logos/spurs.svg', players: [
+                {name: 'Victor Wembanyama', file: 'assets/players/1641705.png'},
+                {name: 'Devin Vassell', file: 'assets/players/1630170.png'},
+                {name: 'Keldon Johnson', file: 'assets/players/1629640.png'}
+            ]}
         };
 
         /* =========================================================
@@ -976,8 +1123,8 @@
             teamNames.forEach(teamName => {
                 const img = new Image();
                 img.onload = () => { teamLogos[teamName] = img; loaded++; updateStatus(); };
-                img.onerror = () => { if (loaded === 0 && teamNames.indexOf(teamName) === teamNames.length - 1) updateStatus(); };
-                img.src = teams[teamName].file;
+                img.onerror = () => { loaded++; updateStatus(); };
+                img.src = teams[teamName].logo;
             });
 
             teamNames.forEach(teamName => {
@@ -987,22 +1134,6 @@
                         img.onload = () => {
                             if (!playerPNGs[teamName]) playerPNGs[teamName] = {};
                             playerPNGs[teamName][player.name] = img;
-                        };
-                        img.onerror = () => {
-                            const jpgImg = new Image();
-                            jpgImg.onload = () => {
-                                if (!playerPNGs[teamName]) playerPNGs[teamName] = {};
-                                playerPNGs[teamName][player.name] = jpgImg;
-                            };
-                            jpgImg.onerror = () => {
-                                const jpegImg = new Image();
-                                jpegImg.onload = () => {
-                                    if (!playerPNGs[teamName]) playerPNGs[teamName] = {};
-                                    playerPNGs[teamName][player.name] = jpegImg;
-                                };
-                                jpegImg.src = player.file.replace('.png', '.jpeg');
-                            };
-                            jpgImg.src = player.file.replace('.png', '.jpg');
                         };
                         img.src = player.file;
                     });
@@ -1037,11 +1168,19 @@
                 ctx.arc(width/2, height/2, 120, 0, Math.PI * 2);
                 ctx.stroke();
             }
-            // Vignette
+            // Subtle top-to-bottom gradient for depth
+            const depthGrad = ctx.createLinearGradient(0, 0, 0, height);
+            depthGrad.addColorStop(0, 'rgba(0,0,0,0.25)');
+            depthGrad.addColorStop(0.45, 'rgba(0,0,0,0.05)');
+            depthGrad.addColorStop(0.55, 'rgba(0,0,0,0.05)');
+            depthGrad.addColorStop(1, 'rgba(0,0,0,0.25)');
+            ctx.fillStyle = depthGrad;
+            ctx.fillRect(0, 0, width, height);
+            // Vignette (reduced intensity)
             const vig = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height) * 0.7);
             vig.addColorStop(0, 'rgba(0,0,0,0)');
-            vig.addColorStop(0.7, 'rgba(0,0,0,0.3)');
-            vig.addColorStop(1, 'rgba(0,0,0,0.6)');
+            vig.addColorStop(0.7, 'rgba(0,0,0,0.2)');
+            vig.addColorStop(1, 'rgba(0,0,0,0.4)');
             ctx.fillStyle = vig;
             ctx.fillRect(0, 0, width, height);
         }
@@ -1049,22 +1188,25 @@
         function renderHeader(ctx, width, L, awayData, homeData) {
             const y = L.header.y;
             const fs = L.header.fontSize;
-            const headerGrad = ctx.createLinearGradient(300, y, 780, y);
-            headerGrad.addColorStop(0, awayData.colors[1]);
-            headerGrad.addColorStop(0.5, '#FFD700');
-            headerGrad.addColorStop(1, homeData.colors[1]);
+            // Clean branded header
+            const headerText = 'VIPCLUB NBA MATCHUP';
+            const headerGrad = ctx.createLinearGradient(width * 0.25, y, width * 0.75, y);
+            headerGrad.addColorStop(0, '#FFD700');
+            headerGrad.addColorStop(0.5, '#FFF8DC');
+            headerGrad.addColorStop(1, '#FFD700');
             ctx.font = `bold ${fs}px Bebas Neue, Impact, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'alphabetic';
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 5;
-            ctx.lineJoin = 'round';
-            ctx.strokeText('VIPCLUB NBA MATCHUP', width / 2, y);
+            // Subtle drop shadow only — no outline stroke
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
             ctx.fillStyle = headerGrad;
-            ctx.shadowColor = '#FFD700';
-            ctx.shadowBlur = 8;
-            ctx.fillText('VIPCLUB NBA MATCHUP', width / 2, y);
+            ctx.fillText(headerText, width / 2, y);
             ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             return y;
         }
 
@@ -1077,60 +1219,37 @@
             const r = 14;
 
             function drawTeam(x, team, teamKey) {
-                // Panel background
+                // Panel background — single solid semi-transparent
                 ctx.save();
-                const panelGrad = ctx.createLinearGradient(x, y, x, y + h);
-                panelGrad.addColorStop(0, team.colors[0] + '50');
-                panelGrad.addColorStop(0.5, team.colors[1] + '30');
-                panelGrad.addColorStop(1, team.colors[0] + '20');
                 Draw.roundedRect(ctx, x, y, w, h, r);
-                ctx.fillStyle = panelGrad;
+                ctx.fillStyle = team.colors[0] + '35';
                 ctx.fill();
 
-                // Border
+                // Thin 1px border
                 Draw.roundedRect(ctx, x, y, w, h, r);
-                ctx.strokeStyle = team.colors[1] + 'AA';
-                ctx.lineWidth = 3;
-                ctx.shadowColor = team.colors[1];
-                ctx.shadowBlur = 6;
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.lineWidth = 1;
                 ctx.stroke();
-                ctx.shadowBlur = 0;
 
-                // Top accent line
-                ctx.save();
-                Draw.roundedRect(ctx, x, y, w, 5, r);
-                ctx.clip();
-                const accentGrad = ctx.createLinearGradient(x, y, x + w, y);
-                accentGrad.addColorStop(0, team.colors[1]);
-                accentGrad.addColorStop(0.5, '#FFFFFF');
-                accentGrad.addColorStop(1, team.colors[1]);
-                ctx.fillStyle = accentGrad;
-                ctx.fillRect(x, y, w, 5);
-                ctx.restore();
-
-                // Logo
+                // Logo — subtle drop shadow only
                 const logoSize = cfg.logoSize;
                 const logoX = x + w / 2;
-                const logoY = y + h * 0.48;
+                const logoY = y + h * 0.4;
 
                 if (teamLogos[teamKey]) {
-                    ctx.shadowColor = team.colors[1];
-                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowOffsetY = 3;
                     ctx.drawImage(teamLogos[teamKey], logoX - logoSize/2, logoY - logoSize/2, logoSize, logoSize);
                     ctx.shadowBlur = 0;
+                    ctx.shadowOffsetY = 0;
                 } else {
-                    ctx.shadowColor = team.colors[1];
-                    ctx.shadowBlur = 8;
                     ctx.beginPath();
                     ctx.arc(logoX, logoY, logoSize/2, 0, Math.PI * 2);
-                    const logoGrad = ctx.createRadialGradient(logoX, logoY, 0, logoX, logoY, logoSize/2);
-                    logoGrad.addColorStop(0, team.colors[1]);
-                    logoGrad.addColorStop(0.6, team.colors[0]);
-                    logoGrad.addColorStop(1, team.colors[1]);
-                    ctx.fillStyle = logoGrad;
+                    ctx.fillStyle = team.colors[0] + '80';
                     ctx.fill();
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 6;
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx.lineWidth = 2;
                     ctx.stroke();
                     ctx.fillStyle = '#FFFFFF';
                     ctx.font = `900 ${Math.floor(logoSize * 0.4)}px Bebas Neue, Impact, sans-serif`;
@@ -1138,8 +1257,8 @@
                     ctx.textBaseline = 'middle';
                     ctx.fillText(team.abbr, logoX, logoY);
                     ctx.textBaseline = 'alphabetic';
-                    ctx.shadowBlur = 0;
                 }
+
                 ctx.restore();
             }
 
@@ -1161,35 +1280,29 @@
 
             function drawBox(bx, label, value) {
                 ctx.save();
-                // Background
-                const grad = ctx.createLinearGradient(bx, y, bx + bw, y);
-                grad.addColorStop(0, awayData.colors[1] + '25');
-                grad.addColorStop(0.5, '#FFD70025');
-                grad.addColorStop(1, homeData.colors[1] + '25');
-                Draw.roundedRect(ctx, bx, y, bw, bh, r);
-                ctx.fillStyle = grad;
+                // Dark semi-transparent pill background
+                const pillR = bh / 2;
+                Draw.roundedRect(ctx, bx, y, bw, bh, pillR);
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fill();
 
-                // Border
-                Draw.roundedRect(ctx, bx, y, bw, bh, r);
-                ctx.strokeStyle = '#333333';
-                ctx.lineWidth = 2;
+                // Barely visible separator border
+                Draw.roundedRect(ctx, bx, y, bw, bh, pillR);
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 1;
                 ctx.stroke();
 
-                // Label
+                // Label — small gold
                 ctx.fillStyle = '#FFD700';
                 ctx.font = `700 ${cfg.labelSize}px Montserrat, Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'alphabetic';
                 ctx.fillText(label, bx + bw/2, y + bh * 0.38);
 
-                // Value
+                // Value — larger white, no glow
                 ctx.fillStyle = value ? '#FFFFFF' : '#666666';
                 ctx.font = `900 ${cfg.valueSize}px Montserrat, Arial`;
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 3;
                 ctx.fillText(value || 'TBD', bx + bw/2, y + bh * 0.78);
-                ctx.shadowBlur = 0;
                 ctx.restore();
             }
 
@@ -1266,111 +1379,94 @@
                     ctx.textBaseline = 'alphabetic';
                 }
 
-                // === 4. Bottom gradient fade — taller for more legs ===
+                // === 4. Bottom gradient fade — reduced opacity ===
                 const fadeRatio = Math.min(0.35 + numLegs * 0.06, 0.6);
                 const fadeH = bh * fadeRatio;
                 const fadeGrad = ctx.createLinearGradient(bx, by + bh - fadeH, bx, by + bh);
                 fadeGrad.addColorStop(0, 'rgba(0,0,0,0)');
-                fadeGrad.addColorStop(0.35, 'rgba(0,0,0,0.55)');
-                fadeGrad.addColorStop(1, 'rgba(0,0,0,0.93)');
+                fadeGrad.addColorStop(0.4, 'rgba(0,0,0,0.45)');
+                fadeGrad.addColorStop(1, 'rgba(0,0,0,0.82)');
                 ctx.fillStyle = fadeGrad;
                 ctx.fillRect(bx, by + bh - fadeH, bw, fadeH);
 
                 // === 5. Layout text from bottom up ===
                 const bottomPad = 20;
                 const oddsBlockH = 50;
-                const pillH = numLegs > 3 ? 24 : numLegs > 2 ? 26 : 28;
+                const pillH = numLegs > 3 ? 20 : numLegs > 2 ? 22 : 24;
                 const pillGap = 4;
                 const nameGap = 10;
 
-                // --- Parlay odds (Orbitron, bold, glowing) ---
+                // --- Parlay odds — clean white bold with green accent ---
                 const oddsY = by + bh - bottomPad;
                 const oddsFontSize = Math.floor(cfg.oddsSize * 0.75);
-                ctx.font = `900 ${oddsFontSize}px Orbitron, Montserrat, Arial`;
+                ctx.font = `900 ${oddsFontSize}px Montserrat, Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'alphabetic';
-                ctx.lineJoin = 'round';
                 const oddsLabel = numLegs > 1 ? `PARLAY  ${parlayOdds}` : parlayOdds;
-                // Outer glow
-                ctx.shadowColor = '#4CAF50';
-                ctx.shadowBlur = 18;
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 5;
-                ctx.strokeText(oddsLabel, bx + bw/2, oddsY);
-                // Gradient fill
-                const oddsGrad = ctx.createLinearGradient(bx + 20, oddsY, bx + bw - 20, oddsY);
-                oddsGrad.addColorStop(0, '#66BB6A');
-                oddsGrad.addColorStop(0.5, '#FFFFFF');
-                oddsGrad.addColorStop(1, '#66BB6A');
-                ctx.fillStyle = oddsGrad;
+                // Clean white text with subtle drop shadow
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
+                ctx.fillStyle = '#FFFFFF';
                 ctx.fillText(oddsLabel, bx + bw/2, oddsY);
+                // Small green accent line under odds
                 ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+                const accentW = ctx.measureText(oddsLabel).width * 0.6;
+                ctx.fillStyle = '#4CAF50';
+                ctx.fillRect(bx + bw/2 - accentW/2, oddsY + 4, accentW, 2);
 
                 // --- Leg pills — stacked upward ---
                 let curY = oddsY - oddsBlockH;
-                const legFontSize = numLegs > 3 ? cfg.propSize - 6 : numLegs > 2 ? cfg.propSize - 4 : cfg.propSize - 2;
+                const legFontSize = numLegs > 3 ? cfg.propSize - 8 : numLegs > 2 ? cfg.propSize - 6 : cfg.propSize - 4;
 
                 for (let i = legs.length - 1; i >= 0; i--) {
                     const leg = legs[i];
                     const text = `${leg.line} ${leg.abbr}`;
-                    const pillW = bw - 24;
-                    const pillX = bx + 12;
+                    const pillW = bw - 48;
+                    const pillX = bx + 24;
                     const pillY = curY - pillH / 2;
 
-                    // Pill background with slight border
+                    // Pill background — dark frosted glass
                     Draw.roundedRect(ctx, pillX, pillY, pillW, pillH, pillH / 2);
-                    const propBg = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY);
-                    propBg.addColorStop(0, 'rgba(30,100,55,0.92)');
-                    propBg.addColorStop(0.5, 'rgba(46,130,70,0.95)');
-                    propBg.addColorStop(1, 'rgba(30,100,55,0.92)');
-                    ctx.fillStyle = propBg;
+                    ctx.fillStyle = 'rgba(0,0,0,0.55)';
                     ctx.fill();
-                    ctx.strokeStyle = 'rgba(102,187,106,0.5)';
-                    ctx.lineWidth = 1.5;
+                    Draw.roundedRect(ctx, pillX, pillY, pillW, pillH, pillH / 2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    ctx.lineWidth = 1;
                     ctx.stroke();
 
-                    // Pill text
-                    ctx.font = `800 ${legFontSize}px Montserrat, Arial`;
+                    // Pill text — clean white
+                    ctx.font = `700 ${legFontSize}px Montserrat, Arial`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                    ctx.shadowBlur = 3;
                     ctx.fillText(text, bx + bw/2, pillY + pillH / 2);
-                    ctx.shadowBlur = 0;
 
                     curY -= pillH + pillGap;
                 }
 
-                // --- Player name above legs (large, Bebas Neue, outlined) ---
+                // --- Player name — clean bold white with drop shadow ---
                 const nameY = curY - nameGap;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'alphabetic';
                 const nameFont = `900 ${cfg.nameSize}px Bebas Neue, Impact, sans-serif`;
                 fitText(ctx, player.toUpperCase(), nameFont, bw - 20, 18);
-                // Black outline
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 6;
-                ctx.lineJoin = 'round';
-                ctx.strokeText(player.toUpperCase(), bx + bw/2, nameY);
-                // White fill with subtle glow
-                ctx.shadowColor = 'rgba(255,255,255,0.4)';
-                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(0,0,0,0.7)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillText(player.toUpperCase(), bx + bw/2, nameY);
                 ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
 
                 ctx.restore();
 
-                // === 6. Card border (outside clip) ===
+                // === 6. Card border — thin clean border ===
                 ctx.save();
                 Draw.roundedRect(ctx, bx, by, bw, bh, r);
-                const borderGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
-                borderGrad.addColorStop(0, team.colors[1]);
-                borderGrad.addColorStop(0.5, '#FFFFFF66');
-                borderGrad.addColorStop(1, team.colors[1]);
-                ctx.strokeStyle = borderGrad;
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 2;
                 ctx.stroke();
                 ctx.restore();
             }
@@ -1427,45 +1523,36 @@
             const r = cfg.radius;
 
             ctx.save();
-            // Background
+            // Frosted glass background
             Draw.roundedRect(ctx, px, py, pw, ph, r);
-            const bg = ctx.createLinearGradient(px, py, px + pw, py);
-            bg.addColorStop(0, 'rgba(26,77,46,0.35)');
-            bg.addColorStop(0.5, 'rgba(38,102,56,0.45)');
-            bg.addColorStop(1, 'rgba(26,77,46,0.35)');
-            ctx.fillStyle = bg;
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.fill();
 
-            // Border
+            // Subtle border
             Draw.roundedRect(ctx, px, py, pw, ph, r);
-            const borderGrad = ctx.createLinearGradient(px, py, px + pw, py);
-            borderGrad.addColorStop(0, '#4CAF50');
-            borderGrad.addColorStop(0.5, '#81C784');
-            borderGrad.addColorStop(1, '#4CAF50');
-            ctx.strokeStyle = borderGrad;
-            ctx.lineWidth = 4;
-            ctx.shadowColor = '#4CAF50';
-            ctx.shadowBlur = 10;
+            ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+            ctx.lineWidth = 1;
             ctx.stroke();
-            ctx.shadowBlur = 0;
 
-            // Title
-            ctx.fillStyle = '#FFFFFF';
+            // Small gold accent line at top
+            const accentW = pw * 0.3;
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(px + (pw - accentW) / 2, py, accentW, 2);
+
+            // Title — gold, clean
+            ctx.fillStyle = '#FFD700';
             ctx.font = `900 ${cfg.titleSize}px Bebas Neue, Impact, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'alphabetic';
-            ctx.shadowColor = '#4CAF50';
-            ctx.shadowBlur = 6;
-            ctx.fillText(p.title, px + pw/2, py + ph * 0.38);
-            ctx.shadowBlur = 0;
+            ctx.fillText(p.title, px + pw/2, py + ph * 0.42);
 
-            // Rules
+            // Rules — muted white
             if (p.rules) {
-                ctx.fillStyle = '#FFFFFF';
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
                 ctx.font = `600 ${cfg.rulesSize}px Montserrat, Arial`;
-                const maxW = pw - 40;
+                const maxW = pw - 50;
                 const lineH = cfg.rulesSize + 5;
-                Draw.wrapText(ctx, p.rules, px + pw/2, py + ph * 0.62, maxW, lineH);
+                Draw.wrapText(ctx, p.rules, px + pw/2, py + ph * 0.68, maxW, lineH);
             }
             ctx.restore();
 
@@ -1477,19 +1564,13 @@
             const y = height - cfg.logoH - cfg.bottomMargin;
 
             if (vipLogo) {
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 8;
                 ctx.drawImage(vipLogo, 40, y, cfg.logoW, cfg.logoH);
-                ctx.shadowBlur = 0;
             } else {
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 8;
                 ctx.fillStyle = '#FFD700';
                 ctx.font = `900 ${cfg.textSize}px Bebas Neue, Impact, sans-serif`;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'alphabetic';
                 ctx.fillText('VIPCLUB', 40, y + cfg.logoH * 0.7);
-                ctx.shadowBlur = 0;
             }
         }
 
@@ -1674,7 +1755,7 @@
                 hour12: true
             }) + ' ET';
 
-            if (isToday) return 'Tonight ' + timeStr;
+            if (isToday) return timeStr;
             if (isTomorrow) return 'Tomorrow ' + timeStr;
             const dayStr = date.toLocaleDateString('en-US', {
                 weekday: 'short',
