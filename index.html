@@ -1093,24 +1093,17 @@
            ========================================================= */
         function loadLogos() {
             const teamNames = Object.keys(teams);
-            const bgNames = ['field1', 'field2', 'court', 'court2', 'court3', 'court4', 'court5'];
             let loaded = 0;
 
             function updateStatus() {
                 const status = document.getElementById('status');
-                status.textContent = loaded > 0 ? `${loaded} of ${teamNames.length} team logos loaded` : 'Ready — add .png files for custom logos';
+                status.textContent = loaded > 0 ? `${loaded} of ${teamNames.length} team logos loaded` : 'Ready';
             }
 
-            bgNames.forEach(bgName => {
-                const img = new Image();
-                img.onload = () => backgrounds[bgName] = img;
-                img.onerror = () => {
-                    const altImg = new Image();
-                    altImg.onload = () => backgrounds[bgName] = altImg;
-                    altImg.src = bgName + '.jpeg';
-                };
-                img.src = bgName + '.jpg';
-            });
+            // Single premium background
+            const bgImg = new Image();
+            bgImg.onload = () => backgrounds['main'] = bgImg;
+            bgImg.src = 'bg-black-sand.jpg';
 
             const vipImg = new Image();
             vipImg.onload = () => vipLogo = vipImg;
