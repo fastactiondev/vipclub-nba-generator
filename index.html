@@ -716,7 +716,7 @@
             <div class="section-title">Tonight's Slate</div>
             <div class="slate-progress" id="slateProgress">Ready</div>
             <div class="slate-grid" id="slateGrid"></div>
-            <button class="btn btn-download-all" id="slateDownloadAll" style="display:none;" onclick="downloadAllSlate()">DOWNLOAD ALL (ZIP)</button>
+            <button class="btn btn-download-all" id="slateDownloadAll" style="display:none;" onclick="downloadAllSlate()">DOWNLOAD ALL</button>
         </div>
     </div>
 
@@ -2486,9 +2486,40 @@
 
             const dlBtn = document.getElementById('slateDownloadAll');
             dlBtn.disabled = true;
-            dlBtn.textContent = 'CREATING ZIP...';
-
             const format = window._slateFormat || 'square';
+
+            // Try sharing individual PNGs via Web Share API (best for mobile)
+            if (navigator.canShare) {
+                dlBtn.textContent = 'PREPARING FILES...';
+                const files = [];
+                for (let i = 0; i < results.length; i++) {
+                    const r = results[i];
+                    const filename = `vipclub-nba-${teams[r.awayKey].abbr}-vs-${teams[r.homeKey].abbr}-${format}.png`;
+                    const dataUrl = r.canvas.toDataURL('image/png', 1.0);
+                    const resp = await fetch(dataUrl);
+                    const blob = await resp.blob();
+                    files.push(new File([blob], filename, { type: 'image/png' }));
+                }
+
+                if (navigator.canShare({ files })) {
+                    try {
+                        await navigator.share({ files, title: 'VipClub NBA Slate' });
+                        dlBtn.disabled = false;
+                        dlBtn.textContent = 'DOWNLOAD ALL';
+                        return;
+                    } catch (e) {
+                        if (e.name === 'AbortError') {
+                            dlBtn.disabled = false;
+                            dlBtn.textContent = 'DOWNLOAD ALL';
+                            return;
+                        }
+                        // Share failed, fall through to ZIP
+                    }
+                }
+            }
+
+            // Fallback: ZIP download
+            dlBtn.textContent = 'CREATING ZIP...';
             const zip = new JSZip();
 
             for (let i = 0; i < results.length; i++) {
@@ -2500,14 +2531,19 @@
             }
 
             const blob = await zip.generateAsync({ type: 'blob' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Use an anchor appended to DOM for better mobile support
             const link = document.createElement('a');
             link.download = `vipclub-nba-slate-${format}-${Date.now()}.zip`;
-            link.href = URL.createObjectURL(blob);
+            link.href = blobUrl;
+            document.body.appendChild(link);
             link.click();
-            URL.revokeObjectURL(link.href);
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
             dlBtn.disabled = false;
-            dlBtn.textContent = 'DOWNLOAD ALL (ZIP)';
+            dlBtn.textContent = 'DOWNLOAD ALL';
         }
 
         /* =========================================================
