@@ -2304,7 +2304,7 @@
             if (!apiKey) return alert('API key not configured.');
 
             const format = document.querySelector('input[name="format"]:checked').value;
-            const promo = document.getElementById('promoSelect').value;
+            const promo = document.getElementById('promoSelect').value || 'MATCH_100';
             const customPromoTitle = document.getElementById('customPromoTitle').value;
             const customPromoRules = document.getElementById('customPromoRules').value;
 
