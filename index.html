@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         :root {
@@ -454,6 +455,80 @@
             gap: 8px;
         }
         .player-fetch-row select { flex: 1; }
+
+        /* Slate Button */
+        .btn-slate {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: #fff;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        .btn-slate:hover { box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5); }
+        .btn-slate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Slate Gallery */
+        #slateGallery { display: none; }
+        #slateGallery.active { display: block; }
+        .slate-progress {
+            text-align: center;
+            padding: 12px;
+            margin-bottom: 16px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--green);
+            border-radius: var(--radius-sm);
+            color: var(--green);
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+        .slate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .slate-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .slate-card canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .slate-card-info {
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .slate-card-label {
+            font-weight: 700;
+            font-size: 0.82em;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .slate-card-dl {
+            padding: 6px 12px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            color: #fff;
+            background: var(--blue);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .slate-card-dl:hover { background: #2563eb; }
+        .btn-download-all {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+        }
+        .btn-download-all:hover { box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body>
@@ -495,6 +570,13 @@
                             </div>
                         </label>
                     </div>
+                </div>
+
+                <!-- Slate Generator -->
+                <div class="card">
+                    <div class="section-title">Batch Generate</div>
+                    <p style="color: var(--text-muted); font-size: 0.82em; margin-bottom: 12px;">Auto-generate graphics for every game on tonight's slate. Uses the format and promo selected above.</p>
+                    <button class="btn btn-slate" id="slateBtn" onclick="generateSlate()">GENERATE TONIGHT'S SLATE</button>
                 </div>
 
                 <!-- Matchup -->
@@ -627,6 +709,14 @@
                     <div class="caption-text" id="caption"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- Slate Gallery -->
+        <div id="slateGallery" class="card" style="margin-top: 20px;">
+            <div class="section-title">Tonight's Slate</div>
+            <div class="slate-progress" id="slateProgress">Ready</div>
+            <div class="slate-grid" id="slateGrid"></div>
+            <button class="btn btn-download-all" id="slateDownloadAll" style="display:none;" onclick="downloadAllSlate()">DOWNLOAD ALL (ZIP)</button>
         </div>
     </div>
 
@@ -786,6 +876,7 @@
                 {name: 'Keegan Murray', file: 'assets/players/1631099.png'}
             ]},
             'Mavericks': {name: 'MAVERICKS', city: 'DALLAS', abbr: 'DAL', colors: ['#00538C', '#B8C4D2'], logo: 'assets/logos/mavericks.svg', players: [
+                {name: 'Cooper Flagg', file: 'assets/players/1642843.png'},
                 {name: 'Kyrie Irving', file: 'assets/players/202681.png'},
                 {name: 'P.J. Washington', file: 'assets/players/1629023.png'},
                 {name: 'Klay Thompson', file: 'assets/players/202691.png'},
@@ -1495,7 +1586,7 @@
             return y;
         }
 
-        function renderPromo(ctx, width, height, L, promo, cursorY) {
+        function renderPromoFromData(ctx, width, height, L, promo, cursorY, customTitle, customRules) {
             if (!promo) return cursorY;
 
             const promos = {
@@ -1504,8 +1595,8 @@
                 'MATCH_50': {title: '50% MATCH BONUS', rules: 'Deposit $100 = Get $50 freeplay ($150 total) \u2022 4x rollover', icon: '\uD83D\uDCB0'},
                 'VIP_CODE': {title: 'VIP BONUS CODE', rules: 'Exclusive offer for VIP members', icon: '\u2B50'},
                 'CUSTOM': {
-                    title: document.getElementById('customPromoTitle').value || 'SPECIAL OFFER',
-                    rules: document.getElementById('customPromoRules').value || 'Limited time offer',
+                    title: customTitle || 'SPECIAL OFFER',
+                    rules: customRules || 'Limited time offer',
                     icon: '\uD83C\uDF1F'
                 }
             };
@@ -1607,6 +1698,12 @@
             return py + ph;
         }
 
+        function renderPromo(ctx, width, height, L, promo, cursorY) {
+            const customTitle = document.getElementById('customPromoTitle').value;
+            const customRules = document.getElementById('customPromoRules').value;
+            return renderPromoFromData(ctx, width, height, L, promo, cursorY, customTitle, customRules);
+        }
+
         function renderFooter(ctx, width, height, L) {
             const cfg = L.footer;
             const y = height - cfg.logoH - cfg.bottomMargin;
@@ -1625,42 +1722,22 @@
         /* =========================================================
            MAIN GENERATE
            ========================================================= */
-        function generateGraphic() {
-            const awayTeam = document.getElementById('awayTeam').value;
-            const homeTeam = document.getElementById('homeTeam').value;
-            const spread = document.getElementById('spread').value;
-            const total = document.getElementById('total').value;
-            const tipOff = document.getElementById('tipOff').value;
-            const format = document.querySelector('input[name="format"]:checked').value;
-
-            if (!awayTeam || !homeTeam) return alert('Please select both teams!');
-            if (awayTeam === homeTeam) return alert('Teams must be different!');
+        function generateGraphicFromData(params) {
+            const { awayKey, homeKey, spread, total, tipOff, format, promo,
+                    customPromoTitle, customPromoRules,
+                    awayPlayer, homePlayer, awayLegs, homeLegs,
+                    awayParlayOdds, homeParlayOdds } = params;
 
             const L = LAYOUTS[format];
             const { width, height } = L;
 
-            let canvas = document.getElementById('canvas');
-            if (!canvas) {
-                canvas = document.createElement('canvas');
-                canvas.id = 'canvas';
-                document.getElementById('canvasContainer').innerHTML = '';
-                document.getElementById('canvasContainer').appendChild(canvas);
-            }
+            const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
 
-            const awayData = teams[awayTeam];
-            const homeData = teams[homeTeam];
-
-            // Player prop data — multi-leg parlays
-            const awayPlayer = document.getElementById('awayPlayer').value;
-            const homePlayer = document.getElementById('homePlayer').value;
-            const awayLegs = getLegs('away');
-            const homeLegs = getLegs('home');
-            const awayParlayOdds = awayLegs.length > 0 ? getParlayOddsStr('away') : '';
-            const homeParlayOdds = homeLegs.length > 0 ? getParlayOddsStr('home') : '';
-            const promo = document.getElementById('promoSelect').value;
+            const awayData = teams[awayKey];
+            const homeData = teams[homeKey];
 
             // 1. Background
             renderBackground(ctx, width, height);
@@ -1669,7 +1746,7 @@
             renderHeader(ctx, width, L, awayData, homeData);
 
             // 3. Team panels
-            const teamBottom = renderTeamPanels(ctx, width, L, awayData, homeData, awayTeam, homeTeam);
+            renderTeamPanels(ctx, width, L, awayData, homeData, awayKey, homeKey);
 
             // 4. Info boxes
             const infoBottom = renderInfoBoxes(ctx, width, L, spread, total, tipOff, awayData, homeData);
@@ -1677,21 +1754,68 @@
             // 5. Player props
             const state = {
                 cursorY: infoBottom,
-                awayPlayer, awayLegs, awayParlayOdds,
-                homePlayer, homeLegs, homeParlayOdds,
+                awayPlayer: awayPlayer || '', awayLegs: awayLegs || [], awayParlayOdds: awayParlayOdds || '',
+                homePlayer: homePlayer || '', homeLegs: homeLegs || [], homeParlayOdds: homeParlayOdds || '',
                 awayData, homeData,
-                awayKey: awayTeam, homeKey: homeTeam
+                awayKey, homeKey
             };
             const propsBottom = renderPlayerProps(ctx, width, L, state);
 
             // 6. Promo
-            const promoBottom = renderPromo(ctx, width, height, L, promo, propsBottom);
+            renderPromoFromData(ctx, width, height, L, promo, propsBottom, customPromoTitle || '', customPromoRules || '');
 
             // 7. Footer
             renderFooter(ctx, width, height, L);
 
+            return canvas;
+        }
+
+        function generateGraphic() {
+            const awayKey = document.getElementById('awayTeam').value;
+            const homeKey = document.getElementById('homeTeam').value;
+
+            if (!awayKey || !homeKey) return alert('Please select both teams!');
+            if (awayKey === homeKey) return alert('Teams must be different!');
+
+            const params = {
+                awayKey,
+                homeKey,
+                spread: document.getElementById('spread').value,
+                total: document.getElementById('total').value,
+                tipOff: document.getElementById('tipOff').value,
+                format: document.querySelector('input[name="format"]:checked').value,
+                promo: document.getElementById('promoSelect').value,
+                customPromoTitle: document.getElementById('customPromoTitle').value,
+                customPromoRules: document.getElementById('customPromoRules').value,
+                awayPlayer: document.getElementById('awayPlayer').value,
+                homePlayer: document.getElementById('homePlayer').value,
+                awayLegs: getLegs('away'),
+                homeLegs: getLegs('home'),
+                awayParlayOdds: getLegs('away').length > 0 ? getParlayOddsStr('away') : '',
+                homeParlayOdds: getLegs('home').length > 0 ? getParlayOddsStr('home') : ''
+            };
+
+            const result = generateGraphicFromData(params);
+
+            // Place result in DOM
+            let canvas = document.getElementById('canvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'canvas';
+            }
+            const container = document.getElementById('canvasContainer');
+            container.innerHTML = '';
+            canvas.width = result.width;
+            canvas.height = result.height;
+            canvas.getContext('2d').drawImage(result, 0, 0);
+            container.appendChild(canvas);
+
             // Caption & download
-            generateCaption(awayData, homeData, spread, total, tipOff, promo, awayPlayer, awayLegs, awayParlayOdds, homePlayer, homeLegs, homeParlayOdds);
+            const awayData = teams[awayKey];
+            const homeData = teams[homeKey];
+            generateCaption(awayData, homeData, params.spread, params.total, params.tipOff, params.promo,
+                params.awayPlayer, params.awayLegs, params.awayParlayOdds,
+                params.homePlayer, params.homeLegs, params.homeParlayOdds);
             document.getElementById('downloadBtn').style.display = 'block';
         }
 
@@ -2008,6 +2132,382 @@
                 statusEl.textContent = err.message || 'Fetch failed';
                 statusEl.className = 'fetch-status error';
             }
+        }
+
+        /* =========================================================
+           BATCH SLATE GENERATION
+           ========================================================= */
+        function resolveTeamKey(apiTeamName) {
+            const api = apiTeamName.toLowerCase().trim();
+
+            // 1. Try exact full match: "city name" e.g. "los angeles lakers"
+            for (const key of Object.keys(teams)) {
+                const t = teams[key];
+                const full = (t.city + ' ' + t.name).toLowerCase();
+                if (api === full) return key;
+            }
+
+            // 2. Try team name match (most unambiguous): "lakers", "clippers", "celtics"
+            for (const key of Object.keys(teams)) {
+                const name = teams[key].name.toLowerCase();
+                if (api.includes(name)) return key;
+            }
+
+            // 3. Try key match: "Trail Blazers", "76ers"
+            for (const key of Object.keys(teams)) {
+                if (api.includes(key.toLowerCase())) return key;
+            }
+
+            // 4. Try city match but only for cities >= 4 chars (skip "LA" ambiguity)
+            for (const key of Object.keys(teams)) {
+                const city = teams[key].city.toLowerCase();
+                if (city.length >= 4 && api.includes(city)) return key;
+            }
+
+            console.log(`[Slate] Could not resolve team: "${apiTeamName}"`);
+            return null;
+        }
+
+        function matchGamesToTeams(games, events) {
+            // API already returns only upcoming games, so include all of them
+            // but filter out games more than 36 hours away to focus on "tonight"
+            const now = new Date();
+            const cutoff = new Date(now.getTime() + 36 * 60 * 60 * 1000);
+
+            console.log(`[Slate] Processing ${games.length} games from API`);
+
+            const matched = [];
+            for (const game of games) {
+                const gameDate = new Date(game.commence_time);
+                if (gameDate > cutoff) {
+                    console.log(`[Slate] Skipping future game: ${game.away_team} vs ${game.home_team} (${gameDate})`);
+                    continue;
+                }
+
+                const awayKey = resolveTeamKey(game.away_team);
+                const homeKey = resolveTeamKey(game.home_team);
+                if (!awayKey || !homeKey) {
+                    console.log(`[Slate] Could not resolve teams: ${game.away_team} (${awayKey}) vs ${game.home_team} (${homeKey})`);
+                    continue;
+                }
+
+                // Extract spread/total from the game's bookmakers
+                const book = pickBookmaker(game.bookmakers || []);
+                let spread = '', total = '', tipOff = '';
+
+                if (book) {
+                    const spreadMkt = book.markets.find(m => m.key === 'spreads');
+                    if (spreadMkt) {
+                        const awayOutcome = spreadMkt.outcomes.find(o => {
+                            const n = o.name.toLowerCase();
+                            return n.includes(teams[awayKey].name.toLowerCase()) || n.includes(teams[awayKey].city.toLowerCase());
+                        });
+                        if (awayOutcome) {
+                            const sign = awayOutcome.point > 0 ? '+' : '';
+                            spread = `${teams[awayKey].abbr} ${sign}${awayOutcome.point}`;
+                        }
+                    }
+                    const totalMkt = book.markets.find(m => m.key === 'totals');
+                    if (totalMkt) {
+                        const over = totalMkt.outcomes.find(o => o.name === 'Over');
+                        if (over) total = `O/U ${over.point}`;
+                    }
+                }
+
+                if (game.commence_time) tipOff = formatTipOff(game.commence_time);
+
+                // Find event ID for props
+                const event = events.find(e =>
+                    (resolveTeamKey(e.away_team) === awayKey && resolveTeamKey(e.home_team) === homeKey) ||
+                    (resolveTeamKey(e.home_team) === awayKey && resolveTeamKey(e.away_team) === homeKey)
+                );
+
+                matched.push({
+                    awayKey, homeKey, spread, total, tipOff,
+                    eventId: event ? event.id : null,
+                    label: `${teams[awayKey].abbr} vs ${teams[homeKey].abbr}`
+                });
+            }
+            return matched;
+        }
+
+        function extractPlayerLegs(bookmakers, playerName) {
+            if (!bookmakers || bookmakers.length === 0) {
+                console.log(`[Slate] No bookmakers for ${playerName}`);
+                return [];
+            }
+            const playerLower = playerName.toLowerCase();
+            const priorityMarkets = ['player_points', 'player_rebounds', 'player_assists'];
+            const legs = [];
+
+            // Search across ALL bookmakers (prioritized) for this player's props
+            const orderedBooks = [];
+            for (const pKey of BOOKMAKER_PRIORITY) {
+                const b = bookmakers.find(bk => bk.key === pKey);
+                if (b) orderedBooks.push(b);
+            }
+            for (const b of bookmakers) {
+                if (!orderedBooks.includes(b)) orderedBooks.push(b);
+            }
+
+            for (const mktKey of priorityMarkets) {
+                if (legs.length >= 3) break;
+                for (const book of orderedBooks) {
+                    if (!book.markets) continue;
+                    const market = book.markets.find(m => m.key === mktKey);
+                    if (!market) continue;
+                    const over = market.outcomes.find(o =>
+                        o.description && o.description.toLowerCase() === playerLower && o.name === 'Over'
+                    );
+                    if (over) {
+                        const propType = PROP_MARKET_MAP[mktKey];
+                        legs.push({
+                            type: propType,
+                            line: `O/U ${over.point}`,
+                            odds: over.price > 0 ? `+${over.price}` : `${over.price}`,
+                            abbr: PROP_ABBR[propType] || propType
+                        });
+                        break; // found this market, move to next
+                    }
+                }
+            }
+            console.log(`[Slate] ${playerName}: found ${legs.length} legs`);
+            return legs;
+        }
+
+        function calculateParlayOddsFromLegs(legs) {
+            const decimals = [];
+            for (const leg of legs) {
+                const d = americanToDecimal(leg.odds);
+                if (d) decimals.push(d);
+            }
+            if (decimals.length === 0) return '';
+            const combined = decimals.reduce((a, b) => a * b, 1);
+            return decimalToAmerican(combined);
+        }
+
+        async function fetchPropsForGame(apiKey, eventId) {
+            if (!eventId) return null;
+            const markets = 'player_points,player_rebounds,player_assists';
+            const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/events/${eventId}/odds?regions=us&markets=${markets}&oddsFormat=american&apiKey=${apiKey}`;
+            const resp = await fetch(url);
+            if (!resp.ok) return null;
+            return resp.json();
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function generateSlate() {
+            const apiKey = getApiKey();
+            if (!apiKey) return alert('API key not configured.');
+
+            const format = document.querySelector('input[name="format"]:checked').value;
+            const promo = document.getElementById('promoSelect').value;
+            const customPromoTitle = document.getElementById('customPromoTitle').value;
+            const customPromoRules = document.getElementById('customPromoRules').value;
+
+            const slateBtn = document.getElementById('slateBtn');
+            const gallery = document.getElementById('slateGallery');
+            const progress = document.getElementById('slateProgress');
+            const grid = document.getElementById('slateGrid');
+            const dlAllBtn = document.getElementById('slateDownloadAll');
+
+            slateBtn.disabled = true;
+            gallery.classList.add('active');
+            grid.innerHTML = '';
+            dlAllBtn.style.display = 'none';
+            progress.textContent = 'Fetching games and events...';
+
+            const slateResults = [];
+
+            try {
+                // Fetch games + events in parallel
+                console.log('[Slate] Fetching games and events...');
+                const [games, events] = await Promise.all([
+                    fetchNBAOdds(apiKey),
+                    fetchNBAEvents(apiKey)
+                ]);
+                console.log(`[Slate] Got ${games.length} games, ${events.length} events`);
+
+                const matched = matchGamesToTeams(games, events);
+                console.log(`[Slate] Matched ${matched.length} games to local teams`);
+                if (matched.length === 0) {
+                    progress.textContent = 'No games found for today. Check console for details.';
+                    slateBtn.disabled = false;
+                    return;
+                }
+
+                progress.textContent = `Found ${matched.length} games. Fetching player props...`;
+                gallery.scrollIntoView({ behavior: 'smooth' });
+
+                // Fetch props per game with delay
+                for (let i = 0; i < matched.length; i++) {
+                    const game = matched[i];
+                    console.log(`[Slate] Fetching props for ${game.label} (${i + 1}/${matched.length}), eventId: ${game.eventId}`);
+                    progress.textContent = `Fetching props for ${game.label} (${i + 1}/${matched.length})...`;
+
+                    if (game.eventId) {
+                        if (i > 0) await delay(1000);
+                        try {
+                            const propsData = await fetchPropsForGame(apiKey, game.eventId);
+                            console.log(`[Slate] Props for ${game.label}:`, propsData ? `OK (${(propsData.bookmakers||[]).length} books)` : 'null');
+                            if (propsData) {
+                                game.propsBookmakers = propsData.bookmakers || [];
+                            }
+                        } catch (propErr) {
+                            console.warn(`[Slate] Props fetch failed for ${game.label}:`, propErr.message);
+                        }
+                    } else {
+                        console.log(`[Slate] No eventId for ${game.label}, skipping props`);
+                    }
+                }
+
+                console.log('[Slate] Generating graphics...');
+                progress.textContent = `Generating ${matched.length} graphics...`;
+
+                // Generate graphics
+                for (let i = 0; i < matched.length; i++) {
+                    const game = matched[i];
+                    console.log(`[Slate] Generating graphic ${i + 1}/${matched.length}: ${game.label}`);
+
+                    // Auto-pick #1 star player per team (first in players array)
+                    const awayPlayers = teams[game.awayKey].players || [];
+                    const homePlayers = teams[game.homeKey].players || [];
+                    const awayStarName = awayPlayers.length > 0 ? awayPlayers[0].name : '';
+                    const homeStarName = homePlayers.length > 0 ? homePlayers[0].name : '';
+
+                    // Extract top 3 legs per player
+                    let awayLegs = [], homeLegs = [];
+                    let awayParlayOdds = '', homeParlayOdds = '';
+
+                    if (game.propsBookmakers && game.propsBookmakers.length > 0 && awayStarName) {
+                        awayLegs = extractPlayerLegs(game.propsBookmakers, awayStarName);
+                        awayParlayOdds = calculateParlayOddsFromLegs(awayLegs);
+                        console.log(`[Slate] ${awayStarName}: ${awayLegs.length} legs, odds: ${awayParlayOdds}`);
+                    }
+                    if (game.propsBookmakers && game.propsBookmakers.length > 0 && homeStarName) {
+                        homeLegs = extractPlayerLegs(game.propsBookmakers, homeStarName);
+                        homeParlayOdds = calculateParlayOddsFromLegs(homeLegs);
+                        console.log(`[Slate] ${homeStarName}: ${homeLegs.length} legs, odds: ${homeParlayOdds}`);
+                    }
+
+                    const params = {
+                        awayKey: game.awayKey,
+                        homeKey: game.homeKey,
+                        spread: game.spread,
+                        total: game.total,
+                        tipOff: game.tipOff,
+                        format,
+                        promo,
+                        customPromoTitle,
+                        customPromoRules,
+                        awayPlayer: awayStarName,
+                        homePlayer: homeStarName,
+                        awayLegs,
+                        homeLegs,
+                        awayParlayOdds,
+                        homeParlayOdds
+                    };
+
+                    try {
+                        const canvas = generateGraphicFromData(params);
+                        slateResults.push({ canvas, label: game.label, awayKey: game.awayKey, homeKey: game.homeKey });
+                        console.log(`[Slate] Generated ${game.label} (${canvas.width}x${canvas.height})`);
+                    } catch (genErr) {
+                        console.error(`[Slate] Failed to generate ${game.label}:`, genErr);
+                    }
+
+                    progress.textContent = `Generated ${i + 1}/${matched.length}: ${game.label}`;
+                }
+
+                // Show gallery
+                console.log(`[Slate] Showing gallery with ${slateResults.length} results`);
+                showSlateGallery(slateResults, grid, dlAllBtn, format);
+                progress.textContent = `Done! ${slateResults.length} graphics generated.`;
+
+            } catch (err) {
+                console.error('[Slate] Error:', err);
+                progress.textContent = 'Error: ' + (err.message || 'Unknown error');
+            }
+
+            slateBtn.disabled = false;
+        }
+
+        function showSlateGallery(results, grid, dlAllBtn, format) {
+            grid.innerHTML = '';
+            window._slateResults = results;
+            window._slateFormat = format;
+
+            for (let i = 0; i < results.length; i++) {
+                const r = results[i];
+                const card = document.createElement('div');
+                card.className = 'slate-card';
+
+                // Thumbnail canvas (scaled down for display)
+                const thumb = document.createElement('canvas');
+                const thumbW = 400;
+                const scale = thumbW / r.canvas.width;
+                thumb.width = thumbW;
+                thumb.height = r.canvas.height * scale;
+                const tctx = thumb.getContext('2d');
+                tctx.drawImage(r.canvas, 0, 0, thumb.width, thumb.height);
+
+                const info = document.createElement('div');
+                info.className = 'slate-card-info';
+                info.innerHTML = `
+                    <span class="slate-card-label">${r.label}</span>
+                    <button class="slate-card-dl" onclick="downloadSlateCard(${i})">DOWNLOAD</button>`;
+
+                card.appendChild(thumb);
+                card.appendChild(info);
+                grid.appendChild(card);
+            }
+
+            if (results.length > 0) {
+                dlAllBtn.style.display = 'flex';
+            }
+        }
+
+        function downloadSlateCard(index) {
+            const r = window._slateResults[index];
+            if (!r) return;
+            const format = window._slateFormat || 'square';
+            const link = document.createElement('a');
+            link.download = `vipclub-nba-${teams[r.awayKey].abbr}-vs-${teams[r.homeKey].abbr}-${format}-${Date.now()}.png`;
+            link.href = r.canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        async function downloadAllSlate() {
+            const results = window._slateResults;
+            if (!results || results.length === 0) return;
+
+            const dlBtn = document.getElementById('slateDownloadAll');
+            dlBtn.disabled = true;
+            dlBtn.textContent = 'CREATING ZIP...';
+
+            const format = window._slateFormat || 'square';
+            const zip = new JSZip();
+
+            for (let i = 0; i < results.length; i++) {
+                const r = results[i];
+                const filename = `vipclub-nba-${teams[r.awayKey].abbr}-vs-${teams[r.homeKey].abbr}-${format}.png`;
+                const dataUrl = r.canvas.toDataURL('image/png', 1.0);
+                const base64 = dataUrl.split(',')[1];
+                zip.file(filename, base64, { base64: true });
+            }
+
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const link = document.createElement('a');
+            link.download = `vipclub-nba-slate-${format}-${Date.now()}.zip`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+
+            dlBtn.disabled = false;
+            dlBtn.textContent = 'DOWNLOAD ALL (ZIP)';
         }
 
         /* =========================================================
