@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VipClub NBA Generator v2</title>
 
+    <script src="config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -1767,10 +1768,8 @@
             'player_blocks': 'Blocks'
         };
 
-        const ODDS_API_KEY = '2a80680c21cc4275c9b7d5d5fafa3ef6';
-
         function getApiKey() {
-            return ODDS_API_KEY;
+            return CONFIG.ODDS_API_KEY;
         }
 
         function pickBookmaker(bookmakers) {
