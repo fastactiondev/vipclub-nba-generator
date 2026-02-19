@@ -2048,26 +2048,64 @@
             return dayStr + ' ' + timeStr;
         }
 
+        // === API Response Cache (localStorage, 30-min TTL) ===
+        const API_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+        function getCached(key) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return null;
+                const { data, ts } = JSON.parse(raw);
+                if (Date.now() - ts > API_CACHE_TTL) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                console.log(`[Cache] HIT: ${key}`);
+                return data;
+            } catch { return null; }
+        }
+
+        function setCache(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+            } catch { /* storage full — silently skip */ }
+        }
+
         async function fetchNBAOdds(apiKey) {
+            const cacheKey = 'odds_nba_games';
+            const cached = getCached(cacheKey);
+            if (cached) return cached;
             const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/odds?regions=us&markets=spreads,totals&oddsFormat=american&apiKey=${apiKey}`;
             const resp = await fetch(url);
             if (!resp.ok) throw new Error(`API error: ${resp.status}`);
-            return resp.json();
+            const data = await resp.json();
+            setCache(cacheKey, data);
+            return data;
         }
 
         async function fetchNBAEvents(apiKey) {
+            const cacheKey = 'odds_nba_events';
+            const cached = getCached(cacheKey);
+            if (cached) return cached;
             const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/events?apiKey=${apiKey}`;
             const resp = await fetch(url);
             if (!resp.ok) throw new Error(`API error: ${resp.status}`);
-            return resp.json();
+            const data = await resp.json();
+            setCache(cacheKey, data);
+            return data;
         }
 
         async function fetchPlayerProps(apiKey, eventId) {
+            const cacheKey = `odds_nba_props_${eventId}`;
+            const cached = getCached(cacheKey);
+            if (cached) return cached;
             const markets = 'player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks';
             const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/events/${eventId}/odds?regions=us&markets=${markets}&oddsFormat=american&apiKey=${apiKey}`;
             const resp = await fetch(url);
             if (!resp.ok) throw new Error(`API error: ${resp.status}`);
-            return resp.json();
+            const data = await resp.json();
+            setCache(cacheKey, data);
+            return data;
         }
 
         async function fetchLiveLines() {
@@ -2398,11 +2436,16 @@
 
         async function fetchPropsForGame(apiKey, eventId) {
             if (!eventId) return null;
+            const cacheKey = `odds_nba_slate_props_${eventId}`;
+            const cached = getCached(cacheKey);
+            if (cached) return cached;
             const markets = 'player_points,player_rebounds,player_assists';
             const url = `${ODDS_API_BASE}/v4/sports/basketball_nba/events/${eventId}/odds?regions=us&markets=${markets}&oddsFormat=american&apiKey=${apiKey}`;
             const resp = await fetch(url);
             if (!resp.ok) return null;
-            return resp.json();
+            const data = await resp.json();
+            setCache(cacheKey, data);
+            return data;
         }
 
         function delay(ms) {
