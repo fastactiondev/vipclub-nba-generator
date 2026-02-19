@@ -2372,25 +2372,50 @@
                     const game = matched[i];
                     console.log(`[Slate] Generating graphic ${i + 1}/${matched.length}: ${game.label}`);
 
-                    // Auto-pick #1 star player per team (first in players array)
+                    // Auto-pick best available player per team (try each until one has props)
                     const awayPlayers = teams[game.awayKey].players || [];
                     const homePlayers = teams[game.homeKey].players || [];
-                    const awayStarName = awayPlayers.length > 0 ? awayPlayers[0].name : '';
-                    const homeStarName = homePlayers.length > 0 ? homePlayers[0].name : '';
-
-                    // Extract top 3 legs per player
+                    let awayStarName = '', homeStarName = '';
                     let awayLegs = [], homeLegs = [];
                     let awayParlayOdds = '', homeParlayOdds = '';
 
-                    if (game.propsBookmakers && game.propsBookmakers.length > 0 && awayStarName) {
-                        awayLegs = extractPlayerLegs(game.propsBookmakers, awayStarName);
-                        awayParlayOdds = calculateParlayOddsFromLegs(awayLegs);
-                        console.log(`[Slate] ${awayStarName}: ${awayLegs.length} legs, odds: ${awayParlayOdds}`);
-                    }
-                    if (game.propsBookmakers && game.propsBookmakers.length > 0 && homeStarName) {
-                        homeLegs = extractPlayerLegs(game.propsBookmakers, homeStarName);
-                        homeParlayOdds = calculateParlayOddsFromLegs(homeLegs);
-                        console.log(`[Slate] ${homeStarName}: ${homeLegs.length} legs, odds: ${homeParlayOdds}`);
+                    if (game.propsBookmakers && game.propsBookmakers.length > 0) {
+                        // Away team: try each player until we find one with props
+                        for (const p of awayPlayers) {
+                            const legs = extractPlayerLegs(game.propsBookmakers, p.name);
+                            if (legs.length > 0) {
+                                awayStarName = p.name;
+                                awayLegs = legs;
+                                awayParlayOdds = calculateParlayOddsFromLegs(legs);
+                                console.log(`[Slate] Away pick: ${p.name} (${legs.length} legs, ${awayParlayOdds})`);
+                                break;
+                            }
+                        }
+                        if (!awayStarName && awayPlayers.length > 0) {
+                            awayStarName = awayPlayers[0].name;
+                            console.log(`[Slate] Away fallback (no props): ${awayStarName}`);
+                        }
+
+                        // Home team: try each player until we find one with props
+                        for (const p of homePlayers) {
+                            const legs = extractPlayerLegs(game.propsBookmakers, p.name);
+                            if (legs.length > 0) {
+                                homeStarName = p.name;
+                                homeLegs = legs;
+                                homeParlayOdds = calculateParlayOddsFromLegs(legs);
+                                console.log(`[Slate] Home pick: ${p.name} (${legs.length} legs, ${homeParlayOdds})`);
+                                break;
+                            }
+                        }
+                        if (!homeStarName && homePlayers.length > 0) {
+                            homeStarName = homePlayers[0].name;
+                            console.log(`[Slate] Home fallback (no props): ${homeStarName}`);
+                        }
+                    } else {
+                        // No props data at all, use #1 star for the image
+                        if (awayPlayers.length > 0) awayStarName = awayPlayers[0].name;
+                        if (homePlayers.length > 0) homeStarName = homePlayers[0].name;
+                        console.log(`[Slate] No props available, using defaults: ${awayStarName} / ${homeStarName}`);
                     }
 
                     const params = {
