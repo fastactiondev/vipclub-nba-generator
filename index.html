@@ -1409,7 +1409,9 @@
 
             const hasAway = awayPlayer && awayLegs.length > 0;
             const hasHome = homePlayer && homeLegs.length > 0;
-            if (!hasAway && !hasHome) return state.cursorY;
+            const hasAwayPlayer = !!awayPlayer;
+            const hasHomePlayer = !!homePlayer;
+            if (!hasAwayPlayer && !hasHomePlayer) return state.cursorY;
 
             let y = state.cursorY + cfg.marginTop;
             const bw = cfg.boxW;
@@ -1559,26 +1561,132 @@
                 ctx.restore();
             }
 
-            if (hasAway && hasHome) {
+            function drawShowcaseBox(bx, by, player, team, teamKey) {
+                const r = 14;
+                ctx.save();
+
+                // === 1. CLIP entire card ===
+                Draw.roundedRect(ctx, bx, by, bw, bh, r);
+                ctx.clip();
+
+                // === 2. Team-color background ===
+                const bgGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
+                bgGrad.addColorStop(0, team.colors[0]);
+                bgGrad.addColorStop(1, team.colors[1] + '88');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(bx, by, bw, bh);
+
+                // === 3. Player image — fills entire card ===
+                if (playerPNGs[teamKey] && playerPNGs[teamKey][player]) {
+                    const img = playerPNGs[teamKey][player];
+                    const imgRatio = img.width / img.height;
+                    let drawW = bw;
+                    let drawH = drawW / imgRatio;
+                    if (drawH < bh * 0.85) {
+                        drawH = bh * 0.85;
+                        drawW = drawH * imgRatio;
+                    }
+                    const drawX = bx + (bw - drawW) / 2;
+                    ctx.drawImage(img, drawX, by, drawW, drawH);
+                } else {
+                    const cx = bx + bw/2;
+                    const cy = by + bh * 0.35;
+                    const pr = Math.min(bw, bh) * 0.2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, pr, 0, Math.PI * 2);
+                    const pGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr);
+                    pGrad.addColorStop(0, team.colors[1]);
+                    pGrad.addColorStop(1, team.colors[0]);
+                    ctx.fillStyle = pGrad;
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
+                    const names = player.split(' ');
+                    const initials = names.length >= 2 ? names[0][0] + names[names.length-1][0] : player.substring(0,2);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = `900 ${Math.floor(pr * 0.8)}px Bebas Neue, Impact, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(initials.toUpperCase(), cx, cy);
+                    ctx.textBaseline = 'alphabetic';
+                }
+
+                // === 4. Bottom gradient fade ===
+                const fadeH = bh * 0.45;
+                const fadeGrad = ctx.createLinearGradient(bx, by + bh - fadeH, bx, by + bh);
+                fadeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+                fadeGrad.addColorStop(0.4, 'rgba(0,0,0,0.45)');
+                fadeGrad.addColorStop(1, 'rgba(0,0,0,0.82)');
+                ctx.fillStyle = fadeGrad;
+                ctx.fillRect(bx, by + bh - fadeH, bw, fadeH);
+
+                // === 5. Player name + team subtitle from bottom ===
+                const bottomPad = 30;
+
+                // Team city + name subtitle
+                const subtitleY = by + bh - bottomPad;
+                ctx.font = `700 ${Math.floor(cfg.nameSize * 0.5)}px Montserrat, Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.fillText(team.city + ' ' + team.name, bx + bw/2, subtitleY);
+
+                // Player name — large bold white
+                const nameY = subtitleY - Math.floor(cfg.nameSize * 0.55);
+                const nameFont = `900 ${cfg.nameSize}px Bebas Neue, Impact, sans-serif`;
+                fitText(ctx, player.toUpperCase(), nameFont, bw - 20, 18);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillText(player.toUpperCase(), bx + bw/2, nameY);
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                ctx.restore();
+
+                // === 6. Card border ===
+                ctx.save();
+                Draw.roundedRect(ctx, bx, by, bw, bh, r);
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Draw each side: prop card if props exist, showcase card if only player name
+            function drawSide(bx, by, hasProps, hasPlayer, player, legs, parlayOdds, team, teamKey) {
+                if (hasProps) {
+                    drawPropBox(bx, by, player, legs, parlayOdds, team, teamKey);
+                } else if (hasPlayer) {
+                    drawShowcaseBox(bx, by, player, team, teamKey);
+                }
+            }
+
+            const showAway = hasAway || hasAwayPlayer;
+            const showHome = hasHome || hasHomePlayer;
+
+            if (showAway && showHome) {
                 if (cfg.arrangement === 'side-by-side') {
                     const totalW = bw * 2 + cfg.gap;
                     const startX = (width - totalW) / 2;
-                    drawPropBox(startX, y, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
-                    drawPropBox(startX + bw + cfg.gap, y, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
+                    drawSide(startX, y, hasAway, hasAwayPlayer, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
+                    drawSide(startX + bw + cfg.gap, y, hasHome, hasHomePlayer, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
                     y += bh;
                 } else {
                     const bx = (width - bw) / 2;
-                    drawPropBox(bx, y, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
+                    drawSide(bx, y, hasAway, hasAwayPlayer, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
                     y += bh + cfg.gap;
-                    drawPropBox(bx, y, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
+                    drawSide(bx, y, hasHome, hasHomePlayer, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
                     y += bh;
                 }
             } else {
                 const bx = (width - bw) / 2;
-                if (hasAway) {
-                    drawPropBox(bx, y, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
+                if (showAway) {
+                    drawSide(bx, y, hasAway, hasAwayPlayer, awayPlayer, awayLegs, awayParlayOdds, awayData, awayKey);
                 } else {
-                    drawPropBox(bx, y, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
+                    drawSide(bx, y, hasHome, hasHomePlayer, homePlayer, homeLegs, homeParlayOdds, homeData, homeKey);
                 }
                 y += bh;
             }
@@ -1751,11 +1859,13 @@
             // 4. Info boxes
             const infoBottom = renderInfoBoxes(ctx, width, L, spread, total, tipOff, awayData, homeData);
 
-            // 5. Player props
+            // 5. Player props — fallback to first rostered player for showcase cards
+            const effectiveAwayPlayer = awayPlayer || (awayData.players && awayData.players.length > 0 ? awayData.players[0].name : '');
+            const effectiveHomePlayer = homePlayer || (homeData.players && homeData.players.length > 0 ? homeData.players[0].name : '');
             const state = {
                 cursorY: infoBottom,
-                awayPlayer: awayPlayer || '', awayLegs: awayLegs || [], awayParlayOdds: awayParlayOdds || '',
-                homePlayer: homePlayer || '', homeLegs: homeLegs || [], homeParlayOdds: homeParlayOdds || '',
+                awayPlayer: effectiveAwayPlayer, awayLegs: awayLegs || [], awayParlayOdds: awayParlayOdds || '',
+                homePlayer: effectiveHomePlayer, homeLegs: homeLegs || [], homeParlayOdds: homeParlayOdds || '',
                 awayData, homeData,
                 awayKey, homeKey
             };
@@ -1891,7 +2001,7 @@
             'player_blocks': 'Blocks'
         };
 
-        const ODDS_API_KEY = '1222143a25b74e7d158cb9e1822bff69';
+        const ODDS_API_KEY = 'cfb9d6ac876361495b5772b117dab445';
 
         function getApiKey() {
             return ODDS_API_KEY;
